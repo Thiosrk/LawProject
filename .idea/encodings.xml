@@ -9,14 +9,13 @@
     <file url="file://$PROJECT_DIR$/src/main/java/Model/Law.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java/Model/Tiao.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java/Word/XmlParserUtil.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/main/resources/Model.zip" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/LawResource/Model.zip" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/LawResource/data.txt" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/LawResource/vector_model_v1.txt" charset="GBK" />
     <file url="file://$PROJECT_DIR$/src/main/resources/application.properties" charset="GBK" />
-    <file url="file://$PROJECT_DIR$/src/main/resources/data.txt" charset="GBK" />
     <file url="file://$PROJECT_DIR$/src/main/resources/input.txt" charset="GBK" />
     <file url="file://$PROJECT_DIR$/src/main/resources/result.txt" charset="GBK" />
     <file url="file://$PROJECT_DIR$/src/main/resources/test_vectors.txt" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/main/resources/vector_model_v1.txt" charset="GBK" />
-    <file url="file://$PROJECT_DIR$/src/main/resources/民事一审" charset="GBK" />
     <file url="file://$PROJECT_DIR$/src/main/resources/民事一审.zip" charset="GBK" />
   </component>
 </project>

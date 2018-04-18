@@ -4,11 +4,8 @@ import com.sun.jna.Native;
 import lombok.NonNull;
 import org.apdplat.word.WordSegmenter;
 import org.apdplat.word.segmentation.Word;
-import org.datavec.api.util.ClassPathResource;
 import org.deeplearning4j.api.storage.StatsStorage;
 import org.deeplearning4j.eval.Evaluation;
-//import org.deeplearning4j.iterator.*;
-//import org.deeplearning4j.iterator.CnnSentenceDataSetIterator;
 import org.deeplearning4j.iterator.LabeledSentenceProvider;
 import org.deeplearning4j.models.embeddings.WeightLookupTable;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
@@ -40,6 +37,7 @@ import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ClassPathResource;
 
 import java.io.*;
 import java.util.*;
@@ -54,17 +52,25 @@ public class Main {
 
     private static Logger log = LoggerFactory.getLogger(Main.class);
 
-    private static final String filePath = "C:\\Users\\69401\\Desktop\\毕业设计资料\\分词\\";
 
-    public static final String XmlPath = "C:\\Users\\69401\\Desktop\\毕业设计资料\\分词\\文书测试数据\\民事一审\\";
+    public static final String ResourcePath = new ClassPathResource("src/main/resources/LawResource").getPath();
 
-    public static final String WORD2VEC_MODEL_PATH = filePath+"vector_model_v1.txt";
+//    private static final String filePath = "C:\\Users\\69401\\Desktop\\毕业设计资料\\分词\\";
 
-    public static final String DataPath = "C:\\Users\\69401\\Desktop\\毕业设计资料\\分词\\文书测试数据\\data.txt";
+//    public static final String XmlPath = "C:\\Users\\69401\\Desktop\\毕业设计资料\\分词\\文书测试数据\\民事一审\\";
+    public static final String XmlPath = ResourcePath+"/民事一审/";
 
-    public static final String TestDataPath = "C:\\Users\\69401\\Desktop\\毕业设计资料\\分词\\文书测试数据\\test_data.txt";
+//    public static final String WORD2VEC_MODEL_PATH = filePath+"vector_model_v1.txt";
+    public static final String WORD2VEC_MODEL_PATH = ResourcePath+"/vector_model_v1.txt";
 
-    public static final String ModelPath = "C:\\Users\\69401\\Desktop\\毕业设计资料\\分词\\文书测试数据\\Model.zip";
+//    public static final String DataPath = "C:\\Users\\69401\\Desktop\\毕业设计资料\\分词\\文书测试数据\\data.txt";
+    public static final String DataPath = ResourcePath+"/data.txt";
+
+    //    public static final String TestDataPath = "C:\\Users\\69401\\Desktop\\毕业设计资料\\分词\\文书测试数据\\test_data.txt";
+    public static final String TestDataPath = ResourcePath+"/test_data.txt";
+
+//    public static final String ModelPath = "C:\\Users\\69401\\Desktop\\毕业设计资料\\分词\\文书测试数据\\Model.zip";
+    public static final String ModelPath = ResourcePath+"/Model.zip";
 
     private static String unicodeToUtf8 (String s) throws UnsupportedEncodingException {
         return new String( s.getBytes("GBK") , "GBK");
@@ -183,8 +189,9 @@ public class Main {
 //            log.info("没有");
 
         //词量
-        List<String> data = readFromtxt(DataPath);
+//        List<String> data = readFromtxt(DataPath);
 
+//        System.out.println(ResourcePath);
 
     }
     //用例测试

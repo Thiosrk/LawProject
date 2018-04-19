@@ -55,10 +55,12 @@ public class Main {
 
     public static final String ResourcePath = new ClassPathResource("src/main/resources/LawResource").getPath();
 
+    public static final String stopwordsPath = ResourcePath+"/stopwords.txt";
+
 //    private static final String filePath = "C:\\Users\\69401\\Desktop\\毕业设计资料\\分词\\";
 
 //    public static final String XmlPath = "C:\\Users\\69401\\Desktop\\毕业设计资料\\分词\\文书测试数据\\民事一审\\";
-    public static final String XmlPath = ResourcePath+"/民事一审/";
+    public static final String XmlPath = ResourcePath+"/xml/";
 
 //    public static final String WORD2VEC_MODEL_PATH = filePath+"vector_model_v1.txt";
     public static final String WORD2VEC_MODEL_PATH = ResourcePath+"/vector_model_v1.txt";
@@ -71,6 +73,8 @@ public class Main {
 
 //    public static final String ModelPath = "C:\\Users\\69401\\Desktop\\毕业设计资料\\分词\\文书测试数据\\Model.zip";
     public static final String ModelPath = ResourcePath+"/Model.zip";
+
+    public static final String TestResultPath = ResourcePath+"/result.txt";
 
     private static String unicodeToUtf8 (String s) throws UnsupportedEncodingException {
         return new String( s.getBytes("GBK") , "GBK");
@@ -158,9 +162,9 @@ public class Main {
 //                datalist.add(data);
 //            }
 //        }
-//
-//
-//        writeStringlistTotxt(datalist,DataPath);
+
+
+//        writeStringlistTotxt(datalist,TestDataPath);
 
 //        制作词向量模型
 //        List<String> data = readFromtxt(DataPath);
@@ -188,38 +192,80 @@ public class Main {
 //        }else
 //            log.info("没有");
 
+        test();
+
         //词量
 //        List<String> data = readFromtxt(DataPath);
 
 //        System.out.println(ResourcePath);
 
+
+
     }
     //用例测试
-    private void test() throws IOException {
+    private static void test() throws IOException {
         int batchSize = 10;
         int truncateReviewsToLength = 256;//词长大于1000抛弃
         Random random = new Random(100);//随机抽样
         Word2Vec wordVectors = WordVectorSerializer.readWord2VecModel(new File(WORD2VEC_MODEL_PATH));
         DataSetIterator trainIter = getDataSetIterator(true, wordVectors,batchSize, truncateReviewsToLength, random);
         ComputationGraph net = ModelSerializer.restoreComputationGraph(ModelPath);
-        String contentsFirstPas = "原告 丁某 诉 称 原 被告 夫妻 感情 不合 2011年 9月 协议 离婚 孩子 完整 家庭 复婚 复婚 被告 外遇 家庭 发生 争执 现 夫妻 分居 生活 夫妻 感情 破裂 特 诉至 法院 被告 离婚 被告 王某 辩称 原 被告 婚后 未 矛盾 夫妻 感情 原告 陈述 提交 证据 证明 被告 外遇 证明 夫妻 感情 破裂 孩子 完整 家庭 被告 诚实 态度 请求 原告 回 心 转 意 同意 离婚 审理 查明 原告 被告 2006年 夏天 自由 恋爱 ×××× 年 ×× 月 ×× 日 原 兖州市 民政局 办理 结婚 登记 手续 2011年 9月 16日 夫妻 矛盾 原 兖州市 民政局 协议 离婚 2013年 1月 27日 原 兖州市 民政局 办理 复婚 手续 2011年 3月 29日 婚 生 男孩 取名 王星元 原 被告 生活 期间 生活 琐事 发生 吵闹 2014年 3月 中旬 深夜 孩子 上学 意见 原告 家中 搬 2014年 4月 14日 原告 诉讼 院 称 被告 孩子 面向 原告 说 脏话 影响 孩子 健康 成长 小事 原告 原因 被告 外遇 伤害 夫妻 感情 原告 被告 生活 被告 离婚 被告 应诉 承认 第三者 原告 暧昧关系 证明 被告 暧昧关系 原告 向本庭 提交 光盘 1 张 内存 女子 龚 照片 21 张 原告 女子 合影 8 张 宗 照片 拍摄 2010年 4月 3日 系 原 被告 第一 次 婚姻 关系 存 续 期间 原告 提供 书写 书面 材料 4 张 4 张 书面 材料 内容 抄 被告 手机 中 短 信 内容 被告 女子 王 暧昧关系 被告 照片 真实性 异议 照片 拍摄 原 被告 第一 次 婚姻 关系 存 续 期间 本案 复婚 感情 照片 被告 外遇 被告 4 张 书面 材料 真实性 内容 异议 被告 手机 中 抄 内容 被告 外遇 被告 原告 外遇 原告 认可 被告 未 提供 证据 证明 事实 原 被告 陈述 提交 证据 认定 材料 收集 记录 卷";
+//        String contentsFirstPas = "原告 丁某 诉 称 原 被告 夫妻 感情 不合 2011年 9月 协议 离婚 孩子 完整 家庭 复婚 复婚 被告 外遇 家庭 发生 争执 现 夫妻 分居 生活 夫妻 感情 破裂 特 诉至 法院 被告 离婚 被告 王某 辩称 原 被告 婚后 未 矛盾 夫妻 感情 原告 陈述 提交 证据 证明 被告 外遇 证明 夫妻 感情 破裂 孩子 完整 家庭 被告 诚实 态度 请求 原告 回 心 转 意 同意 离婚 审理 查明 原告 被告 2006年 夏天 自由 恋爱 ×××× 年 ×× 月 ×× 日 原 兖州市 民政局 办理 结婚 登记 手续 2011年 9月 16日 夫妻 矛盾 原 兖州市 民政局 协议 离婚 2013年 1月 27日 原 兖州市 民政局 办理 复婚 手续 2011年 3月 29日 婚 生 男孩 取名 王星元 原 被告 生活 期间 生活 琐事 发生 吵闹 2014年 3月 中旬 深夜 孩子 上学 意见 原告 家中 搬 2014年 4月 14日 原告 诉讼 院 称 被告 孩子 面向 原告 说 脏话 影响 孩子 健康 成长 小事 原告 原因 被告 外遇 伤害 夫妻 感情 原告 被告 生活 被告 离婚 被告 应诉 承认 第三者 原告 暧昧关系 证明 被告 暧昧关系 原告 向本庭 提交 光盘 1 张 内存 女子 龚 照片 21 张 原告 女子 合影 8 张 宗 照片 拍摄 2010年 4月 3日 系 原 被告 第一 次 婚姻 关系 存 续 期间 原告 提供 书写 书面 材料 4 张 4 张 书面 材料 内容 抄 被告 手机 中 短 信 内容 被告 女子 王 暧昧关系 被告 照片 真实性 异议 照片 拍摄 原 被告 第一 次 婚姻 关系 存 续 期间 本案 复婚 感情 照片 被告 外遇 被告 4 张 书面 材料 真实性 内容 异议 被告 手机 中 抄 内容 被告 外遇 被告 原告 外遇 原告 认可 被告 未 提供 证据 证明 事实 原 被告 陈述 提交 证据 认定 材料 收集 记录 卷";
 
-        String b = "张南子 诉 称 冀 号 车辆 处 投保 机动车 损失 险 险 签订 合同 合同 投保 车辆 险 金额 予以 载明 付永刚 驾驶 投保 车辆 行驶 龙海 大道 山海关 机场 立交桥 路段 时 情况 不当 发生 单方 事故 投保 车辆 受损 事故 秦 市 公安 警察 现场 勘查 认定 付永刚 负 事故 责任 出具 道路 交通 事故 认定书 事故 发生 交警 部门 依法 委托 秦皇岛市 价格 认证 中心 事故 车辆 价格 鉴 证 确认 车辆 损失 数额 车辆 损失 价格 鉴 证 结论 相关 材料 索赔 损失 数额 自行 核算 数额 不符 为由 拒绝 赔偿 情况 原 告特 提起 诉讼 请求 人民法院 依法 判 令 付 各项 理 赔款 合计 金额 元 包括 车 损 元 鉴定 费 元 施 救 费 元 拆解 费 元 提交 证据 车辆 行驶 证 份 复印件 证明 车辆 张南子 商业 险 保险单 份 证明 原 之间 合同 关系 投保 车辆 损失 险 金额 元 投保 计 免 赔 事故 认定书 份 证明 事故 发生 时间 地点 事故 责任 事故 责任 事故 发生 时 驾驶 驾驶证 复印件 证明 事故 发生 时 驾驶 驾驶 资格 财产 损失 价格 鉴定 结论 书 份 确认 损失 元 价格 鉴定 费 单据 张 证明 花费 鉴定 费 元 事故 现场 施 救 费 单据 证明 事故 发生 施 救 车辆 支付 施 救 费 元 拆解 费 单据 张 证明 花费 拆解 费 元 中国 平安 财产 股份 有限公司 北京 分公司 辩称 涉案 车辆 事发 时 公司 投 车辆 损失 险 公司 异议 认可 诉讼 请求 签订 保险单 车辆 初始 登记 日期 年 辆 车 事 辆 车 鉴定 评估 元 签订 条款 情况 公司 赔偿 车辆 价值 同意 诉讼 请求 提供 评估 报告 认可 提交 证据 投保单 机动 车辆 条款 审理 院 认定 付永刚 驾驶证 号 驾驶证 起始 日期 期限 年 驾驶 冀 号 小型 轿车 龙海 大道 西 东 行驶 山海关 机场 立交桥 路段 遇 情况 措施 不当 发生 单方 事故 车辆 损坏 交通 事故 秦皇岛市 公安 交通 警察 支队 六 大队 作出 道路 交通 事故 认定书 认定 付永刚 负 事故 责任 冀 号 小型 轿车 系 张 南 子 秦皇岛市 公安 交通 警察 支队 六 大队 委托 秦皇岛市 物价局 价格 认证 中心 冀 号 小型 轿车 修复 费用 鉴定 鉴定 机构 作出 鉴 证 结论 书 鉴 证 结论 冀 号 小型 轿车 损失 总价值 元 花费 价格 鉴 证 费 元 拆解 费 元 施 救 费 元 中国 平安 财产 股份 有限公司 北京 分 公司 所属 北京市 第一 营业部 投保 机动 车辆 车辆 损失 险 赔偿 限额 元 计 免 赔 率 本次 事故 发生 期间 中国 平安 财产 股份 有限公司 机动 车辆 条款 第一 险 中 车辆 损失 险 第十九 条 车辆 发生 损失 金额 高于 出险 价值 出险 价值 计算 赔偿 施 救 费用 车辆 损失 赔偿 金额 计算 超过 金额 数额 第二十一 条 车辆 发生 事故 遭受 损失 残余 协商 折 协商 价值 赔款 中 扣除 条款 中 折 协商 价值 赔款 中 扣除 黑体 字 第四 释义 中 损失 定义 指 车辆 整体 损毁 车辆 修复 费用 施 救 费用 之和 超过 出险 价值 推 全 损 签字 确认 投保单 载明 确认 收到 平安 机动 车辆 条款 贵 公司 详细 介绍 条款 内容 特别 黑体 字 条款 内容 手 写 打印 版 特别 约定 内容 作 理解 同意 投保 中国 平安 财产 股份 有限公司 北京市 第一 营业部 院 起诉 变更 中国 平安 财产 股份 有限公司 北京 分公司 庭审 时 申请 鉴定 庭审 提出 书面 评估 申请书 申请 冀 号 小型 轿车 事故 发生 时 价值 事故 发生 残 值 评估 院 委托 秦皇岛 星 日 阳 资产 评估 有限 责任 公司 作出 秦 星 评 字 ［ ］ 号 资产 评估 报告 书 评估 结论 截止 评估 基准 日 车辆 评估 价值 元 截止 评估 基准 日 车辆 评估 价值 元 事实 提交 证据 秦星 评 字 ［ ］ 号 资产 评估 报告 书 院 庭审 笔录 卷 证 足以 认定 ";
-        INDArray featuresFirstNegative = ((CnnSentenceDataSetIterator)trainIter).loadSingleSentence(b);
-        INDArray predictionsFirstNegative = net.outputSingle(featuresFirstNegative);
+        List<String> testdatas = readFromtxt(TestDataPath);
+//        HashMap<String,String> source = new HashMap<>();
+        List<String> results = new ArrayList<>();
         List<String> labels = trainIter.getLabels();
-        System.out.println("\n\nPredictions for first negative review:");
-        System.out.println("labels size is : "+labels.size());
-        double k = 0;
-        int flag = 0;
-        for( int i=0; i<labels.size(); i++ ){
-            if (predictionsFirstNegative.getDouble(i) > k){
-                k = predictionsFirstNegative.getDouble(i);
-                flag = i;
+        for (String str : testdatas){
+            String[] strs = str.split("\t");
+            String label = strs[0];
+            String data = strs[1];
+            INDArray features = ((CnnSentenceDataSetIterator)trainIter).loadSingleSentence(data);
+            INDArray predictions = net.outputSingle(features);
+            System.out.println("\n\nPredictions for "+str);
+            System.out.println("labels size is : "+labels.size());
+            double k = 0;
+            int flag = 0;
+            for( int i=0; i<labels.size(); i++ ){
+                if (predictions.getDouble(i) > k){
+                    k = predictions.getDouble(i);
+                    flag = i;
+                }
             }
+            System.out.println("nearest law is : "+labels.get(flag));
+            System.out.println("The similar is : "+k);
+            StringBuilder result = new StringBuilder();
+            result.append("预期输出法条：")
+                    .append(label).append("\t")
+                    .append("预测结果：")
+                    .append(labels.get(flag))
+                    .append("\t")
+                    .append("文本相似度")
+                    .append(k);
+
+            results.add(result.toString());
         }
-        System.out.println("nearest law is : "+labels.get(flag));
-        System.out.println("The similar is : "+k);
+        writeStringlistTotxt(results,TestResultPath);
+
+
+
+
+//        String b = "张南子 诉 称 冀 号 车辆 处 投保 机动车 损失 险 险 签订 合同 合同 投保 车辆 险 金额 予以 载明 付永刚 驾驶 投保 车辆 行驶 龙海 大道 山海关 机场 立交桥 路段 时 情况 不当 发生 单方 事故 投保 车辆 受损 事故 秦 市 公安 警察 现场 勘查 认定 付永刚 负 事故 责任 出具 道路 交通 事故 认定书 事故 发生 交警 部门 依法 委托 秦皇岛市 价格 认证 中心 事故 车辆 价格 鉴 证 确认 车辆 损失 数额 车辆 损失 价格 鉴 证 结论 相关 材料 索赔 损失 数额 自行 核算 数额 不符 为由 拒绝 赔偿 情况 原 告特 提起 诉讼 请求 人民法院 依法 判 令 付 各项 理 赔款 合计 金额 元 包括 车 损 元 鉴定 费 元 施 救 费 元 拆解 费 元 提交 证据 车辆 行驶 证 份 复印件 证明 车辆 张南子 商业 险 保险单 份 证明 原 之间 合同 关系 投保 车辆 损失 险 金额 元 投保 计 免 赔 事故 认定书 份 证明 事故 发生 时间 地点 事故 责任 事故 责任 事故 发生 时 驾驶 驾驶证 复印件 证明 事故 发生 时 驾驶 驾驶 资格 财产 损失 价格 鉴定 结论 书 份 确认 损失 元 价格 鉴定 费 单据 张 证明 花费 鉴定 费 元 事故 现场 施 救 费 单据 证明 事故 发生 施 救 车辆 支付 施 救 费 元 拆解 费 单据 张 证明 花费 拆解 费 元 中国 平安 财产 股份 有限公司 北京 分公司 辩称 涉案 车辆 事发 时 公司 投 车辆 损失 险 公司 异议 认可 诉讼 请求 签订 保险单 车辆 初始 登记 日期 年 辆 车 事 辆 车 鉴定 评估 元 签订 条款 情况 公司 赔偿 车辆 价值 同意 诉讼 请求 提供 评估 报告 认可 提交 证据 投保单 机动 车辆 条款 审理 院 认定 付永刚 驾驶证 号 驾驶证 起始 日期 期限 年 驾驶 冀 号 小型 轿车 龙海 大道 西 东 行驶 山海关 机场 立交桥 路段 遇 情况 措施 不当 发生 单方 事故 车辆 损坏 交通 事故 秦皇岛市 公安 交通 警察 支队 六 大队 作出 道路 交通 事故 认定书 认定 付永刚 负 事故 责任 冀 号 小型 轿车 系 张 南 子 秦皇岛市 公安 交通 警察 支队 六 大队 委托 秦皇岛市 物价局 价格 认证 中心 冀 号 小型 轿车 修复 费用 鉴定 鉴定 机构 作出 鉴 证 结论 书 鉴 证 结论 冀 号 小型 轿车 损失 总价值 元 花费 价格 鉴 证 费 元 拆解 费 元 施 救 费 元 中国 平安 财产 股份 有限公司 北京 分 公司 所属 北京市 第一 营业部 投保 机动 车辆 车辆 损失 险 赔偿 限额 元 计 免 赔 率 本次 事故 发生 期间 中国 平安 财产 股份 有限公司 机动 车辆 条款 第一 险 中 车辆 损失 险 第十九 条 车辆 发生 损失 金额 高于 出险 价值 出险 价值 计算 赔偿 施 救 费用 车辆 损失 赔偿 金额 计算 超过 金额 数额 第二十一 条 车辆 发生 事故 遭受 损失 残余 协商 折 协商 价值 赔款 中 扣除 条款 中 折 协商 价值 赔款 中 扣除 黑体 字 第四 释义 中 损失 定义 指 车辆 整体 损毁 车辆 修复 费用 施 救 费用 之和 超过 出险 价值 推 全 损 签字 确认 投保单 载明 确认 收到 平安 机动 车辆 条款 贵 公司 详细 介绍 条款 内容 特别 黑体 字 条款 内容 手 写 打印 版 特别 约定 内容 作 理解 同意 投保 中国 平安 财产 股份 有限公司 北京市 第一 营业部 院 起诉 变更 中国 平安 财产 股份 有限公司 北京 分公司 庭审 时 申请 鉴定 庭审 提出 书面 评估 申请书 申请 冀 号 小型 轿车 事故 发生 时 价值 事故 发生 残 值 评估 院 委托 秦皇岛 星 日 阳 资产 评估 有限 责任 公司 作出 秦 星 评 字 ［ ］ 号 资产 评估 报告 书 评估 结论 截止 评估 基准 日 车辆 评估 价值 元 截止 评估 基准 日 车辆 评估 价值 元 事实 提交 证据 秦星 评 字 ［ ］ 号 资产 评估 报告 书 院 庭审 笔录 卷 证 足以 认定 ";
+//        INDArray featuresFirstNegative = ((CnnSentenceDataSetIterator)trainIter).loadSingleSentence(b);
+//        INDArray predictionsFirstNegative = net.outputSingle(featuresFirstNegative);
+//        List<String> labels = trainIter.getLabels();
+//        System.out.println("\n\nPredictions for first negative review:");
+//        System.out.println("labels size is : "+labels.size());
+//        double k = 0;
+//        int flag = 0;
+//        for( int i=0; i<labels.size(); i++ ){
+//            if (predictionsFirstNegative.getDouble(i) > k){
+//                k = predictionsFirstNegative.getDouble(i);
+//                flag = i;
+//            }
+//        }
+//        System.out.println("nearest law is : "+labels.get(flag));
+//        System.out.println("The similar is : "+k);
     }
 
     //制作词向量数据
@@ -301,7 +347,7 @@ public class Main {
         for (String str : names){
             System.out.println("key is : "+str);
             ajjbqk = content.get(str);
-            System.out.println("value is : "+content.get(str));
+            System.out.println("value is : "+ajjbqk);
             System.out.println("value length is : "+content.get(str).length());
         }
         ajjbqk = replaceBlank(ajjbqk);
@@ -495,7 +541,6 @@ public class Main {
 
     //停用词
     private static Set getStopWords(){
-        String stopwordsPath = "src\\main\\resources\\stopwords.txt";
         String system_charset = "utf-8";
 
         BufferedReader bufferedReader;
@@ -579,10 +624,10 @@ public class Main {
     //NLPIRcall
     private static String NLPIRword(String sInput) throws UnsupportedEncodingException {
         String argu = "";
-         String system_charset = "GBK";//GBK----0
-//        String system_charset = "UTF-8";
-//        int charset_type = 1;
-         int charset_type = 0;
+//         String system_charset = "GBK";//GBK----0
+        String system_charset = "UTF-8";
+        int charset_type = 1;
+//         int charset_type = 0;
         // 调用printf打印信息
         if (!CLibrary.Instance.NLPIR_Init(argu.getBytes(system_charset),
                 charset_type, "0".getBytes(system_charset))) {
@@ -594,11 +639,11 @@ public class Main {
         String nativeBytes = null;
         try {
             nativeBytes = CLibrary.Instance.NLPIR_ParagraphProcess(sInput, 3);
-            // String nativeStr = new String(nativeBytes, 0,
-            // nativeBytes.length,"utf-8");
+//             String nativeStr = new String(nativeBytes, 0,
+//             nativeBytes.length(),"utf-8");
             System.out.println("分词结果为： " + nativeBytes);
-            // System.out.println("分词结果为： "
-            // + transString(nativeBytes, system_charset, "UTF-8"));
+//             System.out.println("分词结果为： "
+//             + transString(nativeBytes, system_charset, "UTF-8"));
             //
             // System.out.println("分词结果为： "
             // + transString(nativeBytes, "gb2312", "utf-8"));

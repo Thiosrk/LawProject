@@ -54,6 +54,10 @@ public class LabeledSentence implements LabeledSentenceProvider {
                 String[] lines = line.split("\t");
                 String label = lines[0];
                 String content = lines[1];
+                if ("".equals(label)||" ".equals(label)){
+                    line = buffered.readLine();
+                    continue;
+                }
                 stringList.add(content);
                 totalcount++;
                 line = buffered.readLine();
@@ -65,7 +69,6 @@ public class LabeledSentence implements LabeledSentenceProvider {
         }
 
         System.out.println("TotalCount is : "+totalcount);
-//        filesBylabel.put()
         this.random = random;
 
         if (random ==null){

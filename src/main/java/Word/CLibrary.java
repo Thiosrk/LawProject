@@ -9,7 +9,6 @@ import com.sun.jna.Native;
 public interface CLibrary extends Library {
 
     // 定义并初始化接口的静态变量
-    CLibrary Instance = (CLibrary) Native.loadLibrary(System.getProperty("user.dir")+"\\source\\NLPIR", CLibrary.class);
 
     // printf函数声明
     public boolean NLPIR_Init(byte[] sDataPath, int encoding,

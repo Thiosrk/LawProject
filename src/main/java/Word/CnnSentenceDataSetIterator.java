@@ -115,16 +115,20 @@ public class CnnSentenceDataSetIterator implements DataSetIterator {
 
         int[] featureShape = new int[]{1,1,0,0};
         if (sentencesAlongHeight){
-            featureShape[2] = Math.min(maxSentenceLength,tokens.size());
+            featureShape[2] = maxSentenceLength;
             featureShape[3] = wordVectorSize;
         }else {
             featureShape[2] = wordVectorSize;
-            featureShape[3] = Math.min(maxSentenceLength,tokens.size());
+            featureShape[3] = maxSentenceLength;
         }
         INDArray features = Nd4j.create(featureShape);
-        int length = (sentencesAlongHeight ? featureShape[2] : featureShape[3]);
-        for (int i=0;i<length;++i){
-            INDArray vector = getVector(tokens.get(i));
+        for (int i=0;i<maxSentenceLength;++i){
+            INDArray vector;
+            if (i<tokens.size()){
+                vector = getVector(tokens.get(i));
+            }else {
+                vector = Nd4j.create(wordVectorSize);
+            }
             INDArrayIndex[] indices = new INDArrayIndex[4];
             indices[0] = NDArrayIndex.point(0);
             indices[1] = NDArrayIndex.point(0);
@@ -187,20 +191,20 @@ public class CnnSentenceDataSetIterator implements DataSetIterator {
             throw new UnsupportedOperationException("Cannot do next/hasNext without a sentence provider");
         }
         List<Pair<List<String>,String>> tokenizedSentences = new ArrayList<>(num);
-        int maxLength = -1;
+        int maxLength = maxSentenceLength;
         int minLength = Integer.MAX_VALUE; //Track to we know if we can skip mask creation for "all same length" case
         for (int i=0;i<num && sentenceProvider.hasNext();++i){
             Pair<String,String> p = sentenceProvider.nextSentence();
             List<String> tokens = tokenizeSentence(p.getFirst());
-            maxLength = Math.max(maxLength,tokens.size());
+//            maxLength = Math.max(maxLength,tokens.size());
             tokenizedSentences.add(new Pair<>(tokens,p.getSecond()));
         }
-        if (maxSentenceLength>0 && maxLength>maxSentenceLength){
-            maxLength = maxSentenceLength;
-        }
+//        if (maxSentenceLength>0 && maxLength>maxSentenceLength){
+//            maxLength = maxSentenceLength;
+//        }
         int currMinibatchSize = tokenizedSentences.size();
         INDArray labels = Nd4j.create(currMinibatchSize,numClasses);
-        for (int i=0;i<tokenizedSentences.size();++i){
+        for (int i=0;i<currMinibatchSize;++i){
             String labelStr = tokenizedSentences.get(i).getSecond();
             if (!labelClassMap.containsKey(labelStr)){
                 throw new IllegalStateException("Got label \"" + labelStr
@@ -225,21 +229,28 @@ public class CnnSentenceDataSetIterator implements DataSetIterator {
         INDArray features = Nd4j.create(featuresShape);
         for (int i=0;i<currMinibatchSize;++i){
             List<String> currSentence = tokenizedSentences.get(i).getFirst();
-            int length  = Math.min(currSentence.size(),maxLength);
-            for (int j=0;j<length;++j){
-                INDArray vector = getVector(currSentence.get(j));
+            for (int j=0;j<maxLength;++j){
+                INDArray vector;
+                if (j<currSentence.size()){
+                    vector = getVector(currSentence.get(j));
+                }else {
+                    vector = Nd4j.create(wordVectorSize);
+                }
                 INDArrayIndex[] indices = new INDArrayIndex[4];
+
                 indices[0] = NDArrayIndex.point(i);
                 indices[1] = NDArrayIndex.point(0);
                 if (sentencesAlongHeight){
                     indices[2] = NDArrayIndex.point(j);
                     indices[3] = NDArrayIndex.all();
-                } else {
+                }else {
                     indices[2] = NDArrayIndex.all();
                     indices[3] = NDArrayIndex.point(j);
                 }
-//                System.out.println("-------------index.all is : "+indices.length+"-------------");
                 features.put(indices,vector);
+
+
+
             }
         }
         INDArray featuresMask = null;

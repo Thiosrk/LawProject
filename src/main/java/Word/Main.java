@@ -1,6 +1,7 @@
 package Word;
 
 import com.sun.jna.Native;
+import javafx.util.Pair;
 import lombok.NonNull;
 import org.apdplat.word.WordSegmenter;
 import org.apdplat.word.segmentation.Word;
@@ -34,6 +35,9 @@ import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
+import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.indexing.INDArrayIndex;
+import org.nd4j.linalg.indexing.NDArrayIndex;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,8 +45,11 @@ import org.springframework.core.io.ClassPathResource;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 
 
 /**
@@ -60,21 +67,23 @@ public class Main {
 //    private static final String filePath = "C:\\Users\\69401\\Desktop\\毕业设计资料\\分词\\";
 
 //    public static final String XmlPath = "C:\\Users\\69401\\Desktop\\毕业设计资料\\分词\\文书测试数据\\民事一审\\";
-    public static final String XmlPath = ResourcePath+"/xml/";
+    public static final String XmlPath = ResourcePath+"/民事一审/";
 
 //    public static final String WORD2VEC_MODEL_PATH = filePath+"vector_model_v1.txt";
-    public static final String WORD2VEC_MODEL_PATH = ResourcePath+"/vector_model_v1.txt";
+    public static final String WORD2VEC_MODEL_PATH = ResourcePath+"/vector_model_v0.txt";
 
 //    public static final String DataPath = "C:\\Users\\69401\\Desktop\\毕业设计资料\\分词\\文书测试数据\\data.txt";
-    public static final String DataPath = ResourcePath+"/data.txt";
+    public static final String DataPath = ResourcePath+"/data_v1.txt";
 
     //    public static final String TestDataPath = "C:\\Users\\69401\\Desktop\\毕业设计资料\\分词\\文书测试数据\\test_data.txt";
     public static final String TestDataPath = ResourcePath+"/test_data.txt";
 
 //    public static final String ModelPath = "C:\\Users\\69401\\Desktop\\毕业设计资料\\分词\\文书测试数据\\Model.zip";
-    public static final String ModelPath = ResourcePath+"/Model.zip";
+    public static final String ModelPath = ResourcePath+"/Model_v0.zip";
 
-    public static final String TestResultPath = ResourcePath+"/result.txt";
+    public static final String TestResultPath = ResourcePath+"/result_final.txt";
+
+    public static int size = 0;
 
     private static String unicodeToUtf8 (String s) throws UnsupportedEncodingException {
         return new String( s.getBytes("GBK") , "GBK");
@@ -125,6 +134,8 @@ public class Main {
 
     }
 
+    private static AtomicInteger atomicInteger = new AtomicInteger(0);
+
     public static void main(String[] args) throws IOException {
 
 
@@ -162,15 +173,16 @@ public class Main {
 //                datalist.add(data);
 //            }
 //        }
-
-
-//        writeStringlistTotxt(datalist,TestDataPath);
+//
+//
+//        writeStringlistTotxt(datalist,DataPath);
 
 //        制作词向量模型
 //        List<String> data = readFromtxt(DataPath);
 //        word2vec(makeSentences(data));
 
         //卷积训练
+//        System.loadLibrary("mkl_rt");
 //        CnnTrainModel();
 
         //word2vec测试
@@ -192,20 +204,254 @@ public class Main {
 //        }else
 //            log.info("没有");
 
-        test();
+//        Cnntest();
 
-        //词量
-//        List<String> data = readFromtxt(DataPath);
 
-//        System.out.println(ResourcePath);
+        //Nd4j测试
+//        ND4jtest();
+
+
+//        Collection<String> sentences = dealWikiWord();
+
+
+        //大文件读取
+        //初始化
+//        String Datapath = "F:\\Word2vec语料库\\wiki.zh.jian.text";
+//        CountDownLatch countDownLatch = new CountDownLatch(4);
+//        NLPIR nlpir = new NLPIR();
+//        nlpir.init();
+//        FileLineDataHandler fileLineDataHandler = new FileLineDataHandler();
+//        TxtReader fileReader = new TxtReader(Datapath,1024,4,countDownLatch);
+//
+//        //设置handler
+//        fileReader.registerHanlder(fileLineDataHandler);
+//
+//        //开始处理
+//        System.out.println("开始多线程处理");
+//        fileReader.startRead(nlpir);
+//
+//        try {
+//            //调用await方法阻塞当前线程，等待子线程完成后在继续执行
+//            countDownLatch.await();
+//            System.out.println("多线程结束");
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//
+//        log.info("获取的文本");
+//        Collection<String> sentences = fileReader.getDataProcessHandler().getresult();
+//        Collection<String> fianlsentence = new ArrayList<>();
+//        log.info("分词处理");
+//        for (String tmp : sentences){
+//            tmp = getNLPIRresult(nlpir,tmp,getStopWords());
+//            fianlsentence.add(tmp);
+//        }
+//        log.info("分词处理结束");
+//
+        //关闭NLPIR
+//        nlpir.unInit();
+
+        //生成模型
+//        Collection<String> fianlsentence = fileLineDataHandler.getresult();
+//        word2vec(fianlsentence);
+
+//        Word2Vec wordVectors = WordVectorSerializer.readWord2VecModel(new File(WORD2VEC_MODEL_PATH));
+//        int size = wordVectors.getWordVector(wordVectors.vocab().wordAtIndex(0)).length;
+//        System.out.println(wordVectors.getLookupTable().getVocabCache().numWords());
+
+        //文章向量测试
+        Word2Vec wordVectors = WordVectorSerializer.readWord2VecModel(new File(WORD2VEC_MODEL_PATH));
+        LabeledSentenceVec labeledSentenceVec = new LabeledSentenceVec(DataPath,wordVectors);
+        Doc2vectest(labeledSentenceVec);
 
 
 
     }
-    //用例测试
-    private static void test() throws IOException {
+
+    private static void Doc2vectest(LabeledSentenceVec labeledSentenceVec){
+
+        List<String> results = new ArrayList<>();
+        List<String> testdatas = readFromtxt(TestDataPath);
+        for (String str : testdatas) {
+            String[] strs = str.split("\t");
+            String label = strs[0];
+            String data = strs[1];
+            List<Pair<String,Double>> result = labeledSentenceVec.calculateSimilarity(data);
+            System.out.println("\n\nPredictions for "+str);
+            double k = 0;
+            int flag = 0;
+            for (int i=0;i<result.size();++i){
+                double a = result.get(i).getValue();
+                if (a>k){
+                    k = a;
+                    flag = i;
+                }
+            }
+            double k1 = 0;
+            int flag1 = 0;
+            for( int i=0; i<result.size(); i++ ){
+                double a = result.get(i).getValue();
+                if (a < k){
+                    if (a > k1){
+                        k1 = a;
+                        flag1 = i;
+                    }
+                }
+
+            }
+            double k2 = 0;
+            int flag2 = 0;
+            for( int i=0; i<result.size(); i++ ){
+                double a = result.get(i).getValue();
+                if (a < k1){
+                    if (a > k2){
+                        k2 = a;
+                        flag2 = i;
+                    }
+                }
+            }
+
+            StringBuilder output = new StringBuilder();
+            output.append("预期输出法条：").append(label)
+                    .append("\r\n")
+                    .append("预测结果1：").append(result.get(flag).getKey())
+                    .append("\t")
+                    .append("文本相似度：")
+                    .append(k)
+                    .append("\r\n")
+                    .append("预测结果2：").append(result.get(flag1).getKey())
+                    .append("\t")
+                    .append("文本相似度：")
+                    .append(k1)
+                    .append("\r\n")
+                    .append("预测结果3：").append(result.get(flag2).getKey())
+                    .append("\t")
+                    .append("文本相似度：")
+                    .append(k2).append("\r\n").append("\r\n");
+
+            results.add(output.toString());
+
+        }
+
+        writeStringlistTotxt(results,TestResultPath);
+    }
+
+
+    private static Collection<String> dealWikiWord(){
+        String Datapath = "F:\\Word2vec语料库\\wiki.zh.jian.text";
+        String Savepath = "F:\\Word2vec语料库\\wiki_zh_NLPIR.txt";
+        File file = new File(Datapath);
+        BufferedReader reader = null;
+        Collection<String> articles = new ArrayList<String>();
+//        FileWriter fwriter = null;
+
+        try {
+            log.info("以行为单位读取文件内容，一次读一整行：");
+            reader = new BufferedReader(new FileReader(file));
+            String tempString = null;
+            String result = "";
+//            fwriter = new FileWriter(new File(Savepath));
+//            BufferedWriter bw = new BufferedWriter(fwriter);
+            while((tempString = reader.readLine()) != null) {
+//                log.info("read one line,start to deal");
+                String[] strs = tempString.split(" ");
+                StringBuilder text = new StringBuilder();
+                for (String tmp : strs){
+                    if (!isContainNumber(tmp)){
+                        text.append(tmp);
+                    }
+                }
+                result= text.toString();
+//                result = getNLPIRresult(result,getStopWords());
+
+                articles.add(result);
+
+//                log.info("start write to txt!");
+
+//                bw.write(result+"\r\n");
+            }
+            reader.close();
+
+            log.info("finish dealing data!");
+
+//            bw.flush();
+//            bw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            if (reader!=null){
+                try{
+                    reader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return articles;
+
+    }
+
+    private static void ND4jtest(){
+        List<String> currSentence = new ArrayList<>();
+
+        currSentence.add("a");
+        currSentence.add("b");
+        currSentence.add("c");
+        currSentence.add("d");
+
+
+        int currMinibatchSize = 2;
+        int maxLength = 5;
+        int wordVectorSize = 10;
+        int[] a = new int[4];
+
+        a[0] = currMinibatchSize;
+
+        a[1] = 1;
+
+        a[2] = maxLength;
+
+        a[3] = wordVectorSize;
+
+        INDArray features = Nd4j.create(1,100);
+
+//        for (int i=0;i<currMinibatchSize;++i){
+//            int sentenceLength = currSentence.size();
+//            INDArray average = Nd4j.create(1,wordVectorSize);
+//            for (int j=0;j<currSentence.size();++j) {
+//                INDArray vector = getVector();
+//                average.addi(vector);
+//                System.out.println("average is : "+average);
+//            }
+//            average.divi(currSentence.size());
+//            System.out.println("average is : "+average);
+//            INDArrayIndex[] indices = new INDArrayIndex[4];
+//            indices[0] = NDArrayIndex.point(i);
+//            indices[1] = NDArrayIndex.point(0);
+//            indices[2] = NDArrayIndex.point(i);
+//            indices[3] = NDArrayIndex.all();
+//            features.put(indices,average);
+//            System.out.println("features is : "+features);
+//        }
+
+//        features.putScalar(0,3,1.0);
+
+        System.out.println(features);
+        System.out.println(features.size(0));
+        System.out.println(features.size(1));
+        System.out.println(features.getDouble(0,0));
+//        System.out.println(features.size(2));
+    }
+
+    public static INDArray getVector() {
+        return Nd4j.create(new float[]{1,1,1,1,1,1,1,1,1,1},new int[]{1,10});
+    }
+
+    //卷积神经网络用例测试
+    private static void Cnntest() throws IOException {
         int batchSize = 10;
-        int truncateReviewsToLength = 256;//词长大于1000抛弃
+        int truncateReviewsToLength = 400;//词长大于1000抛弃
         Random random = new Random(100);//随机抽样
         Word2Vec wordVectors = WordVectorSerializer.readWord2VecModel(new File(WORD2VEC_MODEL_PATH));
         DataSetIterator trainIter = getDataSetIterator(true, wordVectors,batchSize, truncateReviewsToLength, random);
@@ -232,16 +478,46 @@ public class Main {
                     flag = i;
                 }
             }
-            System.out.println("nearest law is : "+labels.get(flag));
-            System.out.println("The similar is : "+k);
+            double k1 = 0;
+            int flag1 = 0;
+            for( int i=0; i<labels.size(); i++ ){
+                if (predictions.getDouble(i) < k){
+                    if (predictions.getDouble(i) > k1){
+                        k1 = predictions.getDouble(i);
+                        flag1 = i;
+                    }
+                }
+
+            }
+            double k2 = 0;
+            int flag2 = 0;
+            for( int i=0; i<labels.size(); i++ ){
+                if (predictions.getDouble(i) < k1){
+                    if (predictions.getDouble(i) > k2){
+                        k2 = predictions.getDouble(i);
+                        flag2 = i;
+                    }
+                }
+            }
+//            System.out.println("nearest law is : "+labels.get(flag));
+//            System.out.println("The similar is : "+k);
             StringBuilder result = new StringBuilder();
-            result.append("预期输出法条：")
-                    .append(label).append("\t")
-                    .append("预测结果：")
-                    .append(labels.get(flag))
+            result.append("预期输出法条：").append(label)
+                    .append("\r\n")
+                    .append("预测结果1：").append(labels.get(flag))
                     .append("\t")
-                    .append("文本相似度")
-                    .append(k);
+                    .append("文本相似度：")
+                    .append(k)
+                    .append("\r\n")
+                    .append("预测结果2：").append(labels.get(flag1))
+                    .append("\t")
+                    .append("文本相似度：")
+                    .append(k1)
+                    .append("\r\n")
+                    .append("预测结果3：").append(labels.get(flag2))
+                    .append("\t")
+                    .append("文本相似度：")
+                    .append(k2).append("\r\n").append("\r\n");
 
             results.add(result.toString());
         }
@@ -274,23 +550,28 @@ public class Main {
         for (String str :data){
             String[] tmp = str.split("\t");
             System.out.println(tmp[1]);
-            String[] a = tmp[1].split(" ");
-            ArrayList<String> a1 = new ArrayList<>();
-            a1.addAll(Arrays.asList(a));
-            for (int i=0;i<a1.size();++i){
-                String b = a1.get(i);
+            if ("".equals(tmp[0])||" ".equals(tmp[0])){
+                continue;
+            }else {
+                String[] a = tmp[1].split(" ");
+                ArrayList<String> a1 = new ArrayList<>();
+                a1.addAll(Arrays.asList(a));
+                for (int i=0;i<a1.size();++i){
+                    String b = a1.get(i);
 //                b = b.replaceAll("[a-zA-Z]","" );
-                if (isContainNumber(b)){
-                    a1.remove(i);
-                    i--;
+                    if (isContainNumber(b)){
+                        a1.remove(i);
+                        i--;
+                    }
                 }
+                StringBuilder resutlt = new StringBuilder();
+                for (String b : a1){
+                    resutlt.append(b);
+                    resutlt.append(" ");
+                }
+                sentences.add(resutlt.toString());
             }
-            StringBuilder resutlt = new StringBuilder();
-            for (String b : a1){
-                resutlt.append(b);
-                resutlt.append(" ");
-            }
-            sentences.add(resutlt.toString());
+
         }
         return sentences;
     }
@@ -351,7 +632,7 @@ public class Main {
             System.out.println("value length is : "+content.get(str).length());
         }
         ajjbqk = replaceBlank(ajjbqk);
-        ajjbqk = getNLPIRresult(ajjbqk,stopWordSet);
+//        ajjbqk = getNLPIRresult(ajjbqk,stopWordSet);
         System.out.println("ajjbqk is : "+ajjbqk);
         System.out.println("----------------案件基本情况---------------");
 
@@ -369,12 +650,13 @@ public class Main {
         }
         System.out.println("label is : "+label);
         System.out.println("----------------Law---------------");
+        String labelstr = label.toString();
 
-        if ("".equals(ajjbqk)||" ".equals(ajjbqk)){
+        if ("".equals(ajjbqk)||" ".equals(ajjbqk)||"".equals(labelstr)||" ,".equals(labelstr)||" ".equals(labelstr)){
             return null;
         }
         //filename+"\t"+
-        return label+"\t"+ajjbqk;
+        return labelstr+"\t"+ajjbqk;
 
     }
 
@@ -411,9 +693,9 @@ public class Main {
         //基础配置
 
         int batchSize = 10;
-        int vectorSize = 100;//词典向量的维度，这边是100
+        int vectorSize = 100;//词典向量的维度，这边是200
         int nEpochs = 10;//迭代次数
-        int truncateReviewsToLength = 256;//词长大于1000抛弃
+        int truncateReviewsToLength = 400;//词长大于400抛弃
         int cnnLayerFeatureMaps = 100;// 卷积神经网络特征图标 / channels / CNN每层layer的深度
         PoolingType globalPoolingType = PoolingType.MAX;
         Random random = new Random(100);//随机抽样
@@ -427,7 +709,7 @@ public class Main {
                 .activation(Activation.LEAKYRELU)
                 .updater(Updater.ADAM).convolutionMode(ConvolutionMode.Same) //This is important so we can 'stack' the results later
                 .regularization(true).l2(0.0001)
-                .learningRate(0.01)
+                .learningRate(0.001)
                 .graphBuilder()
                 .addInputs("input")
                 .addLayer("cnn3",new ConvolutionLayer.Builder()
@@ -456,7 +738,7 @@ public class Main {
                     .lossFunction(LossFunctions.LossFunction.MCXENT)
                     .activation(Activation.SOFTMAX)
                     .nIn(3*cnnLayerFeatureMaps)
-                    .nOut(1138) //2 classes: positive or negative
+                    .nOut(1137) //2 classes: positive or negative
                     .build(),"globalPool")
                 .setOutputs("out")
                 .build();
@@ -481,7 +763,7 @@ public class Main {
 
         DataSetIterator trainIter = getDataSetIterator(true, wordVectors,batchSize, truncateReviewsToLength, random);
 
-        DataSetIterator testIter = getDataSetIterator(false, wordVectors,batchSize, truncateReviewsToLength, random);
+//        DataSetIterator testIter = getDataSetIterator(false, wordVectors,batchSize, truncateReviewsToLength, random);
 
         log.info("-------------Starting training--------------");
         for (int i=0;i<nEpochs;++i){
@@ -533,14 +815,14 @@ public class Main {
                 .wordVectors(wordVectors)
                 .minibatchSize(minibatchSize)
                 .maxSentenceLength(maxSentenceLength)
-                .useNormalizedWordVectors(false)
+                .useNormalizedWordVectors(true)
                 .build();
 
     }
 
 
     //停用词
-    private static Set getStopWords(){
+    public static Set getStopWords(){
         String system_charset = "utf-8";
 
         BufferedReader bufferedReader;
@@ -559,19 +841,19 @@ public class Main {
         return stopWordSet;
     }
 
-    private static void word2vec(Collection<String> sentences) throws IOException {
+    public static void word2vec(Collection<String> sentences) throws IOException {
         log.info("Load & Vectorize Sentences....");
         // Strip white space before and after for each line
         SentenceIterator iterator = new CollectionSentenceIterator(sentences);
         // Split on white spaces in the line to get words
-        while (iterator.hasNext()){
-            log.info(iterator.nextSentence());
-        }
+//        while (iterator.hasNext()){
+//            log.info(iterator.nextSentence());
+//        }
 
 
         log.info("Building model....");
         Word2Vec vec = new Word2Vec.Builder()
-                .minWordFrequency(2)
+                .minWordFrequency(5)
                 .iterations(1)
                 .layerSize(100)
                 .seed(42)
@@ -590,18 +872,15 @@ public class Main {
         System.out.println("婚姻和合同的相似度是： "+b);
         System.out.println("婚姻和结婚的相似度是： "+c);
         // Write word vectors
-        WordVectorSerializer.writeWordVectors(vec, WORD2VEC_MODEL_PATH);
+        WordVectorSerializer.writeWord2VecModel(vec, WORD2VEC_MODEL_PATH);
 
     }
 
     //NLPIRresult
-    private static String getNLPIRresult(String sInput,Set stopWordSet){
+    public static String getNLPIRresult(NLPIR nlpir,String sInput,Set stopWordSet) throws UnsupportedEncodingException {
         String nativeBytes = "";
-        try {
-            nativeBytes = NLPIRword(sInput);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+        System.out.println(""+(++size));
+        nativeBytes = nlpir.parseSeq(sInput);
         String[] resultArray =nativeBytes.split(" ");
         for(int i=0;i<resultArray.length;++i){
             if (resultArray[i].contains("/"))
@@ -622,80 +901,81 @@ public class Main {
     }
 
     //NLPIRcall
-    private static String NLPIRword(String sInput) throws UnsupportedEncodingException {
-        String argu = "";
-//         String system_charset = "GBK";//GBK----0
-        String system_charset = "UTF-8";
-        int charset_type = 1;
-//         int charset_type = 0;
-        // 调用printf打印信息
-        if (!CLibrary.Instance.NLPIR_Init(argu.getBytes(system_charset),
-                charset_type, "0".getBytes(system_charset))) {
-            System.err.println("初始化失败！");
-        }
-
-
-
-        String nativeBytes = null;
-        try {
-            nativeBytes = CLibrary.Instance.NLPIR_ParagraphProcess(sInput, 3);
-//             String nativeStr = new String(nativeBytes, 0,
-//             nativeBytes.length(),"utf-8");
-            System.out.println("分词结果为： " + nativeBytes);
-//             System.out.println("分词结果为： "
-//             + transString(nativeBytes, system_charset, "UTF-8"));
-            //
-            // System.out.println("分词结果为： "
-            // + transString(nativeBytes, "gb2312", "utf-8"));
-
-            int nCountKey = 0;
-            String nativeByte = CLibrary.Instance.NLPIR_GetKeyWords(sInput, 10,true);
-
-            System.out.println("关键词提取结果是：" + nativeByte);
-
-            String nativeBytenew  = CLibrary.Instance.NLPIR_GetNewWords(sInput,10,true);
-
-            System.out.println("新词提取结果是：" + nativeByte);
-
-            // int nativeElementSize = 4 * 6 +8;//size of result_t in native
-            // code
-            // int nElement = nativeByte.length / nativeElementSize;
-            // ByteArrayInputStream(nativeByte));
-            //
-            // nativeByte = new byte[nativeByte.length];
-            // nCountKey = testNLPIR30.NLPIR_KeyWord(nativeByte, nElement);
-            //
-            // Result[] resultArr = new Result[nCountKey];
-            // DataInputStream dis = new DataInputStream(new
-            // ByteArrayInputStream(nativeByte));
-            // for (int i = 0; i < nCountKey; i++)
-            // {
-            // resultArr[i] = new Result();
-            // resultArr[i].start = Integer.reverseBytes(dis.readInt());
-            // resultArr[i].length = Integer.reverseBytes(dis.readInt());
-            // dis.skipBytes(8);
-            // resultArr[i].posId = Integer.reverseBytes(dis.readInt());
-            // resultArr[i].wordId = Integer.reverseBytes(dis.readInt());
-            // resultArr[i].word_type = Integer.reverseBytes(dis.readInt());
-            // resultArr[i].weight = Integer.reverseBytes(dis.readInt());
-            // }
-            // dis.close();
-            //
-            // for (int i = 0; i < resultArr.length; i++)
-            // {
-            // System.out.println("start=" + resultArr[i].start + ",length=" +
-            // resultArr[i].length + "pos=" + resultArr[i].posId + "word=" +
-            // resultArr[i].wordId + "  weight=" + resultArr[i].weight);
-            // }
-
-            CLibrary.Instance.NLPIR_Exit();
-
-        } catch (Exception ex) {
-            // TODO Auto-generated catch block
-            ex.printStackTrace();
-        }
-
-        return nativeBytes;
-    }
+//    private static String NLPIRword(String sInput) throws UnsupportedEncodingException {
+//        String argu = "";
+////         String system_charset = "GBK";//GBK----0
+//        String system_charset = "UTF-8";
+//        int charset_type = 1;
+////         int charset_type = 0;
+//        // 调用printf打印信息
+//        if (!CLibrary.Instance.NLPIR_Init(argu.getBytes(system_charset),
+//                charset_type, "0".getBytes(system_charset))) {
+//            System.err.println("初始化失败！");
+//        }
+//
+//
+//
+//        String nativeBytes = null;
+//        try {
+//            nativeBytes = CLibrary.Instance.NLPIR_ParagraphProcess(sInput, 3);
+//            log.info(++size+"");
+////             String nativeStr = new String(nativeBytes, 0,
+////             nativeBytes.length(),"utf-8");
+////            System.out.println("分词结果为： " + nativeBytes);
+////             System.out.println("分词结果为： "
+////             + transString(nativeBytes, system_charset, "UTF-8"));
+//            //
+//            // System.out.println("分词结果为： "
+//            // + transString(nativeBytes, "gb2312", "utf-8"));
+//
+////            int nCountKey = 0;
+////            String nativeByte = CLibrary.Instance.NLPIR_GetKeyWords(sInput, 10,true);
+//
+////            System.out.println("关键词提取结果是：" + nativeByte);
+//
+////            String nativeBytenew  = CLibrary.Instance.NLPIR_GetNewWords(sInput,10,true);
+//
+////            System.out.println("新词提取结果是：" + nativeByte);
+//
+//            // int nativeElementSize = 4 * 6 +8;//size of result_t in native
+//            // code
+//            // int nElement = nativeByte.length / nativeElementSize;
+//            // ByteArrayInputStream(nativeByte));
+//            //
+//            // nativeByte = new byte[nativeByte.length];
+//            // nCountKey = testNLPIR30.NLPIR_KeyWord(nativeByte, nElement);
+//            //
+//            // Result[] resultArr = new Result[nCountKey];
+//            // DataInputStream dis = new DataInputStream(new
+//            // ByteArrayInputStream(nativeByte));
+//            // for (int i = 0; i < nCountKey; i++)
+//            // {
+//            // resultArr[i] = new Result();
+//            // resultArr[i].start = Integer.reverseBytes(dis.readInt());
+//            // resultArr[i].length = Integer.reverseBytes(dis.readInt());
+//            // dis.skipBytes(8);
+//            // resultArr[i].posId = Integer.reverseBytes(dis.readInt());
+//            // resultArr[i].wordId = Integer.reverseBytes(dis.readInt());
+//            // resultArr[i].word_type = Integer.reverseBytes(dis.readInt());
+//            // resultArr[i].weight = Integer.reverseBytes(dis.readInt());
+//            // }
+//            // dis.close();
+//            //
+//            // for (int i = 0; i < resultArr.length; i++)
+//            // {
+//            // System.out.println("start=" + resultArr[i].start + ",length=" +
+//            // resultArr[i].length + "pos=" + resultArr[i].posId + "word=" +
+//            // resultArr[i].wordId + "  weight=" + resultArr[i].weight);
+//            // }
+//
+//            CLibrary.Instance.NLPIR_Exit();
+//
+//        } catch (Exception ex) {
+//            // TODO Auto-generated catch block
+//            ex.printStackTrace();
+//        }
+//
+//        return nativeBytes;
+//    }
 
 }

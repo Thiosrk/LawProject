@@ -50,11 +50,11 @@ public class TxtReader {
             }
 //            Collection<String> sentences = dataProcessHandler.getresult();
 //            for (String tmp : sentences){
-//                tmp = Main.getNLPIRresult(nlpir,tmp,Main.getStopWords());
+//                tmp = DataProcess.getNLPIRresult(nlpir,tmp,DataProcess.getStopWords());
 //                fianlsentence.add(tmp);
 //            }
 //            nlpir.unInit();
-//            Main.word2vec(fianlsentence);
+//            DataProcess.word2vec(fianlsentence);
             threadPool.shutdown();
         } catch (FileNotFoundException e1) {
             e1.printStackTrace();

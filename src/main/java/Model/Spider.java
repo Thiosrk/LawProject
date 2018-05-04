@@ -42,6 +42,8 @@ public class Spider implements CommandLineRunner {
     final static String savefile = "C:\\Users\\69401\\Desktop\\毕业设计资料\\法律(改)\\";
     final static String savelaw = "C:\\Users\\69401\\Desktop\\毕业设计资料\\法律\\司法程序法\\";
 //    final static String savefile1 = "C:\\Users\\69401\\Desktop\\毕业设计资料\\法律\\";
+    final static String WuLawUrl = "https://www.itslaw.com/search/lawsAndRegulations?searchMode=lawsAndRegulations&sortType=5&needCorrection=1";
+    final static String GLawUrl = "http://law.hnadl.cn/tree?treekind=channel&randno=710&templet=tree.jsp&root=1&item=18666&opened=0,11,12,13,26,-1#18666";
 
     @Autowired
     private LawDBInterface lawDBImpl;
@@ -300,7 +302,6 @@ public class Spider implements CommandLineRunner {
         return lawlist;
     }
 
-    //C:\Users\69401\Desktop\毕业设计资料
     //保存
     private void saveAstxt(List<String> lawlist,String lawname){
 
@@ -423,7 +424,6 @@ public class Spider implements CommandLineRunner {
 
     }
 
-
     private  Document getDocument (String url){
         try {
             return Jsoup.connect(url).get();
@@ -435,52 +435,274 @@ public class Spider implements CommandLineRunner {
 
     //from 国家法规数据库(http://law.hnadl.cn/web/index2.html)
     public HashMap<String,String> getLawcontent(String lawid,List<String> lawlist){
-
-        String url1 = "http://law.hnadl.cn/tree?treekind=channel&randno=710&templet=tree.jsp&root=1&item=18666&opened=0,11,12,13,26,-1#18666";
-
-        Document doc = getDocument(url1);
-
+        Document doc = getDocument(GLawUrl);
         Elements elements = doc.getAllElements();
-
         String str = elements.select(lawid).attr("href");
-
-        System.out.println("-----------------"+"Start connect to ["+url1+"]-----------------");
-
-        System.out.println("---------------get href :"+str+"-------------------");
-
         String lawurl = "http://law.hnadl.cn/"+str;
-
-        System.out.println("-----------------"+"Start connect to ["+lawurl+"]-----------------");
-
         WebDriver webDriver = getDriver(lawurl);
-
         List<WebElement> tables = webDriver.findElements(By.tagName("table"));
-
         WebElement content = tables.get(1);
-
         WebElement choose = tables.get(2);
-
         WebElement pagedown = choose.findElement(By.id("downrec"));
         HashMap<String,String> lawcontent = new HashMap<String, String>();
         lawcontent = getcontent(content,lawlist,lawcontent,webDriver);
-
         int i = 0;
-
         do {
             ++i;
-            System.out.println("---------------times : "+i+"-------------------");
             pagedown.click();
-
             tables = webDriver.findElements(By.tagName("table"));
             content = tables.get(1);
             choose = tables.get(2);
             pagedown = choose.findElement(By.id("downrec"));
-
             lawcontent = getcontent(content,lawlist,lawcontent,webDriver);
-
         }while((pagedown.getAttribute("href")!=null));
-
         return lawcontent;
+    }
+
+    //from 无讼(https://www.itslaw.com/)
+    public List<LawModel> getLawcontent(List<String> lawlist){
+
+        List<LawModel> result = new ArrayList<LawModel>();
+
+        WebDriver webDriver = getDriver(WuLawUrl);
+
+        for (int i=0;i<lawlist.size();i++){
+            LawModel law = new LawModel(lawlist.get(i));
+
+            law = getLaw(law,webDriver);
+
+            result.add(law);
+            lawRepository.save(law);
+        }
+
+        return result;
+    }
+
+    private LawModel getLaw(LawModel law,WebDriver webDriver){
+        WebDriverWait wait = new WebDriverWait(webDriver, 20);
+        String lawname = law.getName();
+        wait.until(isPageLoaded());
+        List<WebElement> elements = webDriver.findElements(By.tagName("input"));
+        logger.debug("Size : "+elements.size());
+        WebElement webElement = elements.get(0);
+        webElement.click();
+        webElement.sendKeys(lawname);
+        webDriver.findElement(By.className("search-box-btn")).click();
+
+        ///html/body/div[1]/div/section[1]/section[2]/section
+        ///html/body/div[1]/div/section[1]/section[3]/section/header/span[4]
+        ///html/body/div[1]/ws-header/header
+        ///html/body/div[1]/div/section[1]/section[2]/section/header/span[4]
+        List<WebElement> sections = new ArrayList<>();
+        wait.until(isPageLoaded());
+        if (ElementExist(webDriver,By.xpath("/html/body/div[1]/div/section[1]/section[3]/section/header/span[4]"))){
+//            webDriver.findElement(By.xpath("/html/body/div[1]/div/section[1]/section[3]/section/header/span[4]")).click();
+            ////*[@id="现行有效::TopLevel::1_anchor"]
+//            webDriver.findElement(By.xpath("//*[@id=\"现行有效::TopLevel::1_anchor\"]")).click();
+            wait.until(isPageLoaded());
+            sections = webDriver.findElements(By.xpath("/html/body/div[1]/div/section[1]/section[3]/section/section"));
+        }else {
+
+//            webDriver.findElement(By.xpath("/html/body/div[1]/div/section[1]/section[2]/section/header/span[4]")).click();
+//            wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("/html/body/div[1]/div/section[1]/section[2]/section/section")));
+            ///html/body/div[1]/div/section[1]/section[2]/section/section[1]
+            sections = webDriver.findElements(By.xpath("/html/body/div[1]/div/section[1]/section[2]/section/section"));
+        }
+
+
+
+
+
+
+        logger.debug(sections.size());
+
+        for (WebElement element :sections){
+            WebElement status = element.findElement(By.tagName("span"));
+            logger.debug(status.getText());
+            String statusstr = status.getText();
+            if (statusstr.equals("现行有效")){
+                WebElement title = element.findElement(By.className("detail")).findElement(By.tagName("a"));
+//                String titlestr= title.getText().replaceAll("\\(.*?\\)|\\{.*?}|\\[.*?]|（.*?）", "");
+                String titlestr= title.getText();
+                logger.debug(titlestr);
+//                if (lawname.equals("中华人民共和国反不正当竞争法2017")){
+//                    lawname = "中华人民共和国反不正当竞争法";
+//                }
+//                lawname = lawname.replaceAll("\\(.*?\\)|\\{.*?}|\\[.*?]|（.*?）", "");
+                //||titlestr.contains(lawname)
+                if (titlestr.equals(lawname)){
+                    title.click();
+                    break;
+                }
+            }
+
+        }
+
+        String handle = webDriver.getWindowHandle();
+        for (String handles : webDriver.getWindowHandles()) {
+            if (handles.equals(handle))
+                continue;
+            webDriver.switchTo().window(handles);
+            logger.debug("has changed!");
+        }
+
+//        WebDriverWait wait = new WebDriverWait(webDriver, 20);
+
+
+        wait.until(isPageLoaded());
+
+//        System.out.println(webDriver.getTitle());
+
+        //正文：/html/body/div[1]/div/article/section/section/section[3]/section
+
+        //attributes: /html/body/div[1]/div/article/section/section/section[1]/div[2]
+        WebElement attributes = webDriver.findElement(By.xpath("/html/body/div[1]/div/article/section/section/section[1]/div[2]"));
+
+        List<WebElement> a = attributes.findElements(By.xpath("/html/body/div[1]/div/article/section/section/section[1]/div[2]/span"));
+        String publish = "";
+        String start = "";
+        String timelimit = "";
+        if (a.size()>2){
+            //publish: /html/body/div[1]/div/article/section/section/section[1]/div[2]/span[1]/span
+            publish = attributes.findElement(By.xpath("/html/body/div[1]/div/article/section/section/section[1]/div[2]/span[1]/span")).getText();
+            //start: /html/body/div[1]/div/article/section/section/section[1]/div[2]/span[2]/span
+            start = attributes.findElement(By.xpath("/html/body/div[1]/div/article/section/section/section[1]/div[2]/span[2]/span")).getText();
+            //timelimit: /html/body/div[1]/div/article/section/section/section[1]/div[2]/span[3]/span
+            timelimit = attributes.findElement(By.xpath("/html/body/div[1]/div/article/section/section/section[1]/div[2]/span[3]/span")).getText();
+        }else {
+            //publish: /html/body/div[1]/div/article/section/section/section[1]/div[2]/span[1]/span
+            publish = attributes.findElement(By.xpath("/html/body/div[1]/div/article/section/section/section[1]/div[2]/span[1]/span")).getText();
+            //timelimit: /html/body/div[1]/div/article/section/section/section[1]/div[2]/span[3]/span
+            timelimit = attributes.findElement(By.xpath("/html/body/div[1]/div/article/section/section/section[1]/div[2]/span[2]/span")).getText();
+        }
+
+        law.setTimelimit(timelimit);
+        law.setPublishtime(publish);
+        law.setStarttime(start);
+        if (timelimit.equals("失效")){
+            webDriver.close();
+            webDriver.switchTo().window(handle);
+            //“x”Button 后退
+            WebElement element = webDriver.findElement(By.xpath("//div[1]/div/section/nav/div/div/span//span[2]"));
+            element.click();
+        }else {
+            law = getTiao(webDriver,law,handle,timelimit);
+        }
+
+
+        return law;
+
+    }
+
+    private LawModel getTiao(WebDriver webDriver,LawModel law,String handle,String timelimit){
+
+        List<WebElement> divs = new ArrayList<>();
+
+        if (timelimit.equals("现行有效")){
+            ///html/body/div[1]/div/article/section/section/section[2]
+            WebElement content = null;
+            if (ElementExist(webDriver,By.xpath("/html/body/div[1]/div/article/section/section/section[3]/section"))){
+                content = webDriver.findElement(By.xpath("/html/body/div[1]/div/article/section/section/section[3]/section"));
+                divs = content.findElements(By.xpath("/html/body/div[1]/div/article/section/section/section[3]/section/div"));
+            }else {
+                content = webDriver.findElement(By.xpath("/html/body/div[1]/div/article/section/section/section[2]/section"));
+                divs = content.findElements(By.xpath("/html/body/div[1]/div/article/section/section/section[2]/section/div"));
+            }
+            logger.debug(content.getText());
+            logger.debug("divs size :"+divs.size());
+        }else {
+            ///html/body/div[1]/div/article/section/section/section[3]
+            ///html/body/div[1]/div/article/section/section/section[4]/section
+            WebElement content = webDriver.findElement(By.xpath("/html/body/div[1]/div/article/section/section/section[4]/section"));
+            logger.debug(content.getText());
+            divs = content.findElements(By.xpath("/html/body/div[1]/div/article/section/section/section[4]/section/div"));
+            logger.debug("divs size :"+divs.size());
+        }
+
+
+        LinkedHashMap<String,TiaoModel> tiaoList = new LinkedHashMap<>();
+        TiaoModel tiao = null;
+        LinkedHashMap<String,KuanModel> kuanList = new LinkedHashMap<>();
+        KuanModel kuan = null;
+        List<String> xiang = new ArrayList<String>();
+        boolean flag = true;
+        boolean start = false;
+        for (WebElement div :divs){
+            String tmp = div.findElement(By.tagName("span")).getText();
+            logger.debug("***"+tmp+"***");
+
+            if (start){
+                if (tmp.startsWith("第")&&tmp.contains("章")){
+                    continue;
+                }
+                if(tmp.startsWith("第")&&tmp.endsWith("条")){
+                    if (tiao != null){
+
+//                        logger.debug(tiao.getContent()+"结束！");
+                        tiao.setKuan(kuanList);
+                        tiaoList.put(tmp,tiao);
+                    }
+                    logger.debug(tmp+"开始：");
+                    logger.debug("刷新条----------");
+                    tiao = new TiaoModel();
+                    logger.debug("刷新款list----------");
+                    kuanList = new LinkedHashMap();
+                    continue;
+                }
+
+                if(flag){
+//                if (kuan!=null){
+//                    logger.debug("第"+kuanList.indexOf(kuan)+"款"+"结束！");
+//                    kuan = new Model.Kuan();
+//                }
+//                logger.debug("第"+(kuanList.indexOf(kuan)+1)+"款"+"开始");
+                    logger.debug("刷新款----------");
+                    kuan = new KuanModel();
+                    kuan.setContent(tmp);
+                    if (tmp.contains("：")||tmp.contains(":")){
+                        flag = false;
+                        logger.debug("进入项---------");
+                    }else {
+                        KuanModel kuan1 = new KuanModel(kuan);
+                        kuanList.put(tmp,kuan1);
+                    }
+                }else {
+                    logger.debug("加入项------------");
+                    xiang.add(tmp);
+                    if (tmp.contains("。")){
+                        logger.debug("项结束----------");
+                        flag = true;
+                        kuan.setXiang(xiang);
+                        KuanModel kuan1 = new KuanModel(kuan);
+                        kuanList.put(tmp,kuan1);
+                        kuan = new KuanModel();
+                        logger.debug("刷新项----------");
+                        xiang = new ArrayList<String>();
+                    }
+                }
+                tiao.setKuan(kuanList);
+                tiaoList.put(tmp,tiao);
+            }else {
+                if (tmp.equals("第一条")){
+                    start = true;
+                    tiao = new TiaoModel();
+                    kuanList = new LinkedHashMap<>();
+                }
+            }
+
+
+
+//            logger.debug();
+        }
+        law.setTiao(tiaoList);
+
+        webDriver.close();
+        webDriver.switchTo().window(handle);
+        //“x”Button 后退
+        WebElement element = webDriver.findElement(By.xpath("//div[1]/div/section/nav/div/div/span//span[2]"));
+        element.click();
+
+        return law;
 
     }
 
@@ -627,32 +849,7 @@ public class Spider implements CommandLineRunner {
         return lawlist;
     }
 
-
-    //from 无讼(https://www.itslaw.com/)
-    public List<Law> getLawcontent(List<String> lawlist){
-
-        List<Law> result = new ArrayList<Law>();
-
-        String url = "https://www.itslaw.com/search/lawsAndRegulations?searchMode=lawsAndRegulations&sortType=5&needCorrection=1";
-
-        WebDriver webDriver = getDriver(url);
-
-        for (int i=0;i<lawlist.size();i++){
-            Law law = new Law(lawlist.get(i));
-
-            law = getLaw(law,webDriver);
-
-            result.add(law);
-            dbService.insertLaw(law);
-        }
-
-
-
-        return result;
-    }
-
-    private boolean ElementExist(WebDriver driver,By locator)
-    {
+    private boolean ElementExist(WebDriver driver,By locator) {
         try {
             driver.findElement(locator);
             return true;
@@ -672,235 +869,6 @@ public class Spider implements CommandLineRunner {
     }
 
 
-    private Law getLaw(Law law,WebDriver webDriver){
-        WebDriverWait wait = new WebDriverWait(webDriver, 20);
-        String lawname = law.getName();
-        wait.until(isPageLoaded());
-        List<WebElement> elements = webDriver.findElements(By.tagName("input"));
-        logger.debug("Size : "+elements.size());
-        WebElement webElement = elements.get(0);
-        webElement.click();
-        webElement.sendKeys(lawname);
-        webDriver.findElement(By.className("search-box-btn")).click();
-
-        ///html/body/div[1]/div/section[1]/section[2]/section
-        ///html/body/div[1]/div/section[1]/section[3]/section/header/span[4]
-        ///html/body/div[1]/ws-header/header
-        ///html/body/div[1]/div/section[1]/section[2]/section/header/span[4]
-        List<WebElement> sections = new ArrayList<>();
-        wait.until(isPageLoaded());
-        if (ElementExist(webDriver,By.xpath("/html/body/div[1]/div/section[1]/section[3]/section/header/span[4]"))){
-//            webDriver.findElement(By.xpath("/html/body/div[1]/div/section[1]/section[3]/section/header/span[4]")).click();
-            ////*[@id="现行有效::TopLevel::1_anchor"]
-//            webDriver.findElement(By.xpath("//*[@id=\"现行有效::TopLevel::1_anchor\"]")).click();
-            wait.until(isPageLoaded());
-            sections = webDriver.findElements(By.xpath("/html/body/div[1]/div/section[1]/section[3]/section/section"));
-        }else {
-
-//            webDriver.findElement(By.xpath("/html/body/div[1]/div/section[1]/section[2]/section/header/span[4]")).click();
-//            wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("/html/body/div[1]/div/section[1]/section[2]/section/section")));
-            ///html/body/div[1]/div/section[1]/section[2]/section/section[1]
-            sections = webDriver.findElements(By.xpath("/html/body/div[1]/div/section[1]/section[2]/section/section"));
-        }
-
-
-
-
-
-
-        logger.debug(sections.size());
-
-        for (WebElement element :sections){
-            WebElement status = element.findElement(By.tagName("span"));
-            logger.debug(status.getText());
-            String statusstr = status.getText();
-            if (statusstr.equals("现行有效")){
-                WebElement title = element.findElement(By.className("detail")).findElement(By.tagName("a"));
-//                String titlestr= title.getText().replaceAll("\\(.*?\\)|\\{.*?}|\\[.*?]|（.*?）", "");
-                String titlestr= title.getText();
-                logger.debug(titlestr);
-//                if (lawname.equals("中华人民共和国反不正当竞争法2017")){
-//                    lawname = "中华人民共和国反不正当竞争法";
-//                }
-//                lawname = lawname.replaceAll("\\(.*?\\)|\\{.*?}|\\[.*?]|（.*?）", "");
-                //||titlestr.contains(lawname)
-                if (titlestr.equals(lawname)){
-                    title.click();
-                    break;
-                }
-            }
-
-        }
-
-        String handle = webDriver.getWindowHandle();
-        for (String handles : webDriver.getWindowHandles()) {
-            if (handles.equals(handle))
-                continue;
-            webDriver.switchTo().window(handles);
-            logger.debug("has changed!");
-        }
-
-//        WebDriverWait wait = new WebDriverWait(webDriver, 20);
-
-
-        wait.until(isPageLoaded());
-
-//        System.out.println(webDriver.getTitle());
-
-        //正文：/html/body/div[1]/div/article/section/section/section[3]/section
-
-        //attributes: /html/body/div[1]/div/article/section/section/section[1]/div[2]
-        WebElement attributes = webDriver.findElement(By.xpath("/html/body/div[1]/div/article/section/section/section[1]/div[2]"));
-
-        List<WebElement> a = attributes.findElements(By.xpath("/html/body/div[1]/div/article/section/section/section[1]/div[2]/span"));
-        String publish = "";
-        String start = "";
-        String timelimit = "";
-        if (a.size()>2){
-            //publish: /html/body/div[1]/div/article/section/section/section[1]/div[2]/span[1]/span
-            publish = attributes.findElement(By.xpath("/html/body/div[1]/div/article/section/section/section[1]/div[2]/span[1]/span")).getText();
-            //start: /html/body/div[1]/div/article/section/section/section[1]/div[2]/span[2]/span
-            start = attributes.findElement(By.xpath("/html/body/div[1]/div/article/section/section/section[1]/div[2]/span[2]/span")).getText();
-            //timelimit: /html/body/div[1]/div/article/section/section/section[1]/div[2]/span[3]/span
-            timelimit = attributes.findElement(By.xpath("/html/body/div[1]/div/article/section/section/section[1]/div[2]/span[3]/span")).getText();
-        }else {
-            //publish: /html/body/div[1]/div/article/section/section/section[1]/div[2]/span[1]/span
-            publish = attributes.findElement(By.xpath("/html/body/div[1]/div/article/section/section/section[1]/div[2]/span[1]/span")).getText();
-            //timelimit: /html/body/div[1]/div/article/section/section/section[1]/div[2]/span[3]/span
-            timelimit = attributes.findElement(By.xpath("/html/body/div[1]/div/article/section/section/section[1]/div[2]/span[2]/span")).getText();
-        }
-
-        law.setTimelimit(timelimit);
-        law.setPublishtime(publish);
-        law.setStarttime(start);
-        if (timelimit.equals("失效")){
-            webDriver.close();
-            webDriver.switchTo().window(handle);
-            //“x”Button 后退
-            WebElement element = webDriver.findElement(By.xpath("//div[1]/div/section/nav/div/div/span//span[2]"));
-            element.click();
-        }else {
-            law = getTiao(webDriver,law,handle,timelimit);
-        }
-
-
-        return law;
-
-    }
-
-    private Law getTiao(WebDriver webDriver,Law law,String handle,String timelimit){
-
-        List<WebElement> divs = new ArrayList<>();
-
-        if (timelimit.equals("现行有效")){
-            ///html/body/div[1]/div/article/section/section/section[2]
-            WebElement content = null;
-            if (ElementExist(webDriver,By.xpath("/html/body/div[1]/div/article/section/section/section[3]/section"))){
-                content = webDriver.findElement(By.xpath("/html/body/div[1]/div/article/section/section/section[3]/section"));
-                divs = content.findElements(By.xpath("/html/body/div[1]/div/article/section/section/section[3]/section/div"));
-            }else {
-                content = webDriver.findElement(By.xpath("/html/body/div[1]/div/article/section/section/section[2]/section"));
-                divs = content.findElements(By.xpath("/html/body/div[1]/div/article/section/section/section[2]/section/div"));
-            }
-            logger.debug(content.getText());
-            logger.debug("divs size :"+divs.size());
-        }else {
-            ///html/body/div[1]/div/article/section/section/section[3]
-            ///html/body/div[1]/div/article/section/section/section[4]/section
-            WebElement content = webDriver.findElement(By.xpath("/html/body/div[1]/div/article/section/section/section[4]/section"));
-            logger.debug(content.getText());
-            divs = content.findElements(By.xpath("/html/body/div[1]/div/article/section/section/section[4]/section/div"));
-            logger.debug("divs size :"+divs.size());
-        }
-
-
-        List<Tiao> tiaoList = new ArrayList<Tiao>();
-        Tiao tiao = null;
-        List<Kuan> kuanList = new ArrayList<Kuan>();
-        Kuan kuan = null;
-        List<String> xiang = new ArrayList<String>();
-        boolean flag = true;
-        boolean start = false;
-        for (WebElement div :divs){
-            String tmp = div.findElement(By.tagName("span")).getText();
-            logger.debug("***"+tmp+"***");
-
-            if (start){
-                if (tmp.startsWith("第")&&tmp.contains("章")){
-                    continue;
-                }
-                if(tmp.startsWith("第")&&tmp.endsWith("条")){
-                    if (tiao != null){
-
-                        logger.debug(tiao.getContent()+"结束！");
-                        tiao.setKuan(kuanList);
-                        tiaoList.add(tiao);
-                    }
-                    logger.debug(tmp+"开始：");
-                    logger.debug("刷新条----------");
-                    tiao = new Tiao();
-                    logger.debug("刷新款list----------");
-                    kuanList = new ArrayList<Kuan>();
-                    tiao.setContent(tmp);
-                    continue;
-                }
-
-                if(flag){
-//                if (kuan!=null){
-//                    logger.debug("第"+kuanList.indexOf(kuan)+"款"+"结束！");
-//                    kuan = new Model.Kuan();
-//                }
-//                logger.debug("第"+(kuanList.indexOf(kuan)+1)+"款"+"开始");
-                    logger.debug("刷新款----------");
-                    kuan = new Kuan();
-                    kuan.setContent(tmp);
-                    if (tmp.contains("：")||tmp.contains(":")){
-                        flag = false;
-                        logger.debug("进入项---------");
-                    }else {
-                        Kuan kuan1 = new Kuan(kuan);
-                        kuanList.add(kuan1);
-                    }
-                }else {
-                    logger.debug("加入项------------");
-                    xiang.add(tmp);
-                    if (tmp.contains("。")){
-                        logger.debug("项结束----------");
-                        flag = true;
-                        kuan.setXiang(xiang);
-                        Kuan kuan1 = new Kuan(kuan);
-                        kuanList.add(kuan1);
-                        kuan = new Kuan();
-                        logger.debug("刷新项----------");
-                        xiang = new ArrayList<String>();
-                    }
-                }
-                tiao.setKuan(kuanList);
-                tiaoList.add(tiao);
-            }else {
-                if (tmp.equals("第一条")){
-                    start = true;
-                    tiao = new Tiao();
-                    kuanList = new ArrayList<Kuan>();
-                    tiao.setContent(tmp);
-                }
-            }
-
-
-
-//            logger.debug();
-        }
-        law.setTiao(tiaoList);
-
-        webDriver.close();
-        webDriver.switchTo().window(handle);
-        //“x”Button 后退
-        WebElement element = webDriver.findElement(By.xpath("//div[1]/div/section/nav/div/div/span//span[2]"));
-        element.click();
-
-        return law;
-
-    }
 
 
 }

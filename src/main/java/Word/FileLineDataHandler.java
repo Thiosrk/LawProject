@@ -24,7 +24,7 @@ public class FileLineDataHandler implements DataProcessHandler {
     @Override
     public void process(byte[] data,NLPIR nlpir) {
 
-//        Main demo = new Main();
+//        DataProcess demo = new DataProcess();
         try {
             String tempString = new String(data,encode);
 //            System.out.println(tempString);
@@ -38,7 +38,7 @@ public class FileLineDataHandler implements DataProcessHandler {
             }
             result= text.toString();
 //            System.out.println(result);
-            result = Main.getNLPIRresult(nlpir,result,Main.getStopWords());
+            result = DataProcess.getNLPIRresult(nlpir,result,DataProcess.getStopWords());
 
             System.out.println("articles size : "+(++flag));
             articles.add(result);

@@ -207,56 +207,91 @@ public class DataProcess {
 
         //大文件读取
         //初始化
-        CountDownLatch countDownLatch = new CountDownLatch(4);
-        NLPIR nlpir = new NLPIR();
-        nlpir.init();
-        FileLineDataHandler fileLineDataHandler = new FileLineDataHandler();
-        TxtReader fileReader = new TxtReader(Datapath,1024,4,countDownLatch);
-
-        //设置handler
-        fileReader.registerHanlder(fileLineDataHandler);
-
-        //开始处理
-        System.out.println("开始多线程处理");
-        fileReader.startRead(nlpir);
-
-        try {
-            //调用await方法阻塞当前线程，等待子线程完成后在继续执行
-            countDownLatch.await();
-            System.out.println("多线程结束");
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        log.info("获取的文本");
-        Collection<String> sentences = fileReader.getDataProcessHandler().getresult();
-        Collection<String> fianlsentence = new ArrayList<>();
-        log.info("分词处理");
-        for (String tmp : sentences){
-            tmp = getNLPIRresult(nlpir,tmp,getStopWords());
-            fianlsentence.add(tmp);
-        }
-        log.info("分词处理结束");
-
-        //关闭NLPIR
-        nlpir.unInit();
-
-        //生成模型
-//        Collection<String> fianlsentence = fileLineDataHandler.getresult();
-        word2vec(fianlsentence);
+//        CountDownLatch countDownLatch = new CountDownLatch(4);
+//        NLPIR nlpir = new NLPIR();
+//        nlpir.init();
+//        FileLineDataHandler fileLineDataHandler = new FileLineDataHandler();
+//        TxtReader fileReader = new TxtReader(Datapath,1024,4,countDownLatch);
+//
+//        //设置handler
+//        fileReader.registerHanlder(fileLineDataHandler);
+//
+//        //开始处理
+//        System.out.println("开始多线程处理");
+//        fileReader.startRead(nlpir);
+//
+//        try {
+//            //调用await方法阻塞当前线程，等待子线程完成后在继续执行
+//            countDownLatch.await();
+//            System.out.println("多线程结束");
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//
+//        log.info("获取的文本");
+//        Collection<String> sentences = fileReader.getDataProcessHandler().getresult();
+//        Collection<String> fianlsentence = new ArrayList<>();
+//        log.info("分词处理");
+//        for (String tmp : sentences){
+//            tmp = getNLPIRresult(nlpir,tmp,getStopWords());
+//            fianlsentence.add(tmp);
+//        }
+//        log.info("分词处理结束");
+//
+//        //关闭NLPIR
+//        nlpir.unInit();
+//
+//        //生成模型
+////        Collection<String> fianlsentence = fileLineDataHandler.getresult();
+//        word2vec(fianlsentence);
 
 //        Word2Vec wordVectors = WordVectorSerializer.readWord2VecModel(new File(WORD2VEC_MODEL_PATH));
 //        int size = wordVectors.getWordVector(wordVectors.vocab().wordAtIndex(0)).length;
 //        System.out.println(wordVectors.getLookupTable().getVocabCache().numWords());
 
         //文章向量测试
-        Word2Vec wordVectors = WordVectorSerializer.readWord2VecModel(new File(WORD2VEC_MODEL_PATH));
-        LabeledSentenceProcess labeledSentenceVec = new LabeledSentenceProcess(DataPath,wordVectors);
-        Doc2vectest(labeledSentenceVec);
+//        Word2Vec wordVectors = WordVectorSerializer.readWord2VecModel(new File(WORD2VEC_MODEL_PATH));
+//        LabeledSentenceProcess labeledSentenceVec = new LabeledSentenceProcess(DataPath,wordVectors);
+//        Doc2vectest(labeledSentenceVec);
 
+//        List<Double> a = new ArrayList<>();
+//        a.add(1.0);
+//        a.add(2.0);
+//        a.add(3.0);
+//        a.add(4.0);
+//        a.add(5.0);
+//        a.add(6.0);
+//
+//        List<Double> result = new ArrayList<>(5);
+//
+//        for (int i=0;i<result.size();++i){
+//            Double tmp = getfirst(a);
+//            System.out.println(tmp);
+//            result.add(tmp);
+//            a.remove(tmp);
+//        }
+//        System.out.println("result : ");
+//
+//        for (Double b :result){
+//            System.out.println(b);
+//        }
 
 
     }
+//    private static Double getfirst(List<Double> result){
+//        double k = 0;
+//        int flag = 0;
+//        for (int i=0;i<result.size();++i){
+//            double a = result.get(i);
+//            if (a>k){
+//                k = a;
+//                flag = i;
+//            }
+//        }
+//        Double pair = result.get(flag);
+////        result.remove(flag);
+//        return pair;
+//    }
 
 //    public void trainword(){
 //        String Datapath = "F:\\Word2vec语料库\\wiki.zh.jian.text";
@@ -299,73 +334,73 @@ public class DataProcess {
 //        word2vec(fianlsentence);
 //    }
 
-    private static void Doc2vectest(LabeledSentenceProcess labeledSentenceVec){
-
-        List<String> results = new ArrayList<>();
-        List<String> testdatas = readFromtxt(TestDataPath);
-        for (String str : testdatas) {
-            String[] strs = str.split("\t");
-            String label = strs[0];
-            String data = strs[1];
-            List<Pair<String,Double>> result = labeledSentenceVec.calculateSimilarity(data);
-            System.out.println("\n\nPredictions for "+str);
-            double k = 0;
-            int flag = 0;
-            for (int i=0;i<result.size();++i){
-                double a = result.get(i).getValue();
-                if (a>k){
-                    k = a;
-                    flag = i;
-                }
-            }
-            double k1 = 0;
-            int flag1 = 0;
-            for( int i=0; i<result.size(); i++ ){
-                double a = result.get(i).getValue();
-                if (a < k){
-                    if (a > k1){
-                        k1 = a;
-                        flag1 = i;
-                    }
-                }
-
-            }
-            double k2 = 0;
-            int flag2 = 0;
-            for( int i=0; i<result.size(); i++ ){
-                double a = result.get(i).getValue();
-                if (a < k1){
-                    if (a > k2){
-                        k2 = a;
-                        flag2 = i;
-                    }
-                }
-            }
-
-            StringBuilder output = new StringBuilder();
-            output.append("预期输出法条：").append(label)
-                    .append("\r\n")
-                    .append("预测结果1：").append(result.get(flag).getKey())
-                    .append("\t")
-                    .append("文本相似度：")
-                    .append(k)
-                    .append("\r\n")
-                    .append("预测结果2：").append(result.get(flag1).getKey())
-                    .append("\t")
-                    .append("文本相似度：")
-                    .append(k1)
-                    .append("\r\n")
-                    .append("预测结果3：").append(result.get(flag2).getKey())
-                    .append("\t")
-                    .append("文本相似度：")
-                    .append(k2).append("\r\n").append("\r\n");
-
-            results.add(output.toString());
-
-        }
-
-        writeStringlistTotxt(results,TestResultPath);
-    }
+//    private static void Doc2vectest(LabeledSentenceProcess labeledSentenceVec){
+//
+//        List<String> results = new ArrayList<>();
+//        List<String> testdatas = readFromtxt(TestDataPath);
+//        for (String str : testdatas) {
+//            String[] strs = str.split("\t");
+//            String label = strs[0];
+//            String data = strs[1];
+//            List<Pair<String,Double>> result = labeledSentenceVec.calculateSimilarity(data);
+//            System.out.println("\n\nPredictions for "+str);
+//            double k = 0;
+//            int flag = 0;
+//            for (int i=0;i<result.size();++i){
+//                double a = result.get(i).getValue();
+//                if (a>k){
+//                    k = a;
+//                    flag = i;
+//                }
+//            }
+//            double k1 = 0;
+//            int flag1 = 0;
+//            for( int i=0; i<result.size(); i++ ){
+//                double a = result.get(i).getValue();
+//                if (a < k){
+//                    if (a > k1){
+//                        k1 = a;
+//                        flag1 = i;
+//                    }
+//                }
+//
+//            }
+//            double k2 = 0;
+//            int flag2 = 0;
+//            for( int i=0; i<result.size(); i++ ){
+//                double a = result.get(i).getValue();
+//                if (a < k1){
+//                    if (a > k2){
+//                        k2 = a;
+//                        flag2 = i;
+//                    }
+//                }
+//            }
+//
+//            StringBuilder output = new StringBuilder();
+//            output.append("预期输出法条：").append(label)
+//                    .append("\r\n")
+//                    .append("预测结果1：").append(result.get(flag).getKey())
+//                    .append("\t")
+//                    .append("文本相似度：")
+//                    .append(k)
+//                    .append("\r\n")
+//                    .append("预测结果2：").append(result.get(flag1).getKey())
+//                    .append("\t")
+//                    .append("文本相似度：")
+//                    .append(k1)
+//                    .append("\r\n")
+//                    .append("预测结果3：").append(result.get(flag2).getKey())
+//                    .append("\t")
+//                    .append("文本相似度：")
+//                    .append(k2).append("\r\n").append("\r\n");
+//
+//            results.add(output.toString());
+//
+//        }
+//
+//        writeStringlistTotxt(results,TestResultPath);
+//    }
 
 
     private static Collection<String> dealWikiWord(){

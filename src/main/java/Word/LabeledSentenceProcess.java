@@ -68,6 +68,105 @@ public class LabeledSentenceProcess implements Serializable {
 
     }
 
+    //Knn类似算法
+    public List<String> mulKnnresult(String sentence,int k,int num){
+
+        List<Pair<String,Double>> similarityresult = calculateSimilarity(sentence);
+        List<Pair<String,Double>> topKresult = gettopK(similarityresult,k);
+        HashMap<String,Double> labels = getLawlabels(topKresult);
+        for (Pair<String,Double> tmp : topKresult){
+            Double weight = tmp.getValue();
+            String lawsstr = tmp.getKey();
+            String[] laws = lawsstr.split(",");
+            for (String a :laws){
+                String[] lawcontents = a.split(" ");
+                String label = lawcontents[0];
+                for (int i=1;i<label.length();++i){
+                    String key= label+" "+lawcontents[i];
+                    if (labels.containsKey(key)){
+                        labels.put(key,labels.get(key)+weight);
+                    }
+                }
+            }
+
+        }
+
+        List<String> result = gettopN(labels,num);
+
+
+        return result;
+    }
+
+    private List<String> gettopN(HashMap<String,Double> labels,int n) {
+
+        List<String> result = new ArrayList<>(n);
+
+        for (int i=0;i<n;++i){
+            double flag = 0;
+            String label = "";
+            for (Map.Entry<String,Double> entry : labels.entrySet()){
+                if (flag < entry.getValue()){
+                    flag = entry.getValue();
+                    label = entry.getKey();
+                }
+            }
+            result.add(label);
+            labels.remove(label);
+        }
+
+        return result;
+    }
+
+
+    private HashMap<String,Double> getLawlabels(List<Pair<String, Double>> topKresult) {
+
+        HashMap<String,Double> result = new HashMap<>();
+
+        for (Pair<String,Double> tmp : topKresult){
+            String lawsstr = tmp.getKey();
+            String[] laws = lawsstr.split(",");
+            for (String a :laws){
+                String[] lawcontents = a.split(" ");
+                String label = lawcontents[0];
+                for (int i=1;i<label.length();++i){
+                    String key= label+" "+lawcontents[i];
+                    if (!result.containsKey(key)){
+                        result.put(key,0.0);
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private Pair<String,Double> getfirst(List<Pair<String, Double>> result){
+        double k = 0;
+        int flag = 0;
+        for (int i=0;i<result.size();++i){
+            double a = result.get(i).getValue();
+            if (a>k){
+                k = a;
+                flag = i;
+            }
+        }
+        Pair<String,Double> pair = result.get(flag);
+        return pair;
+    }
+
+    private List<Pair<String,Double>> gettopK(List<Pair<String, Double>> similarityresult,int k) {
+
+        List<Pair<String,Double>> result = new ArrayList<>(k);
+
+        for (int i=0;i<k;++i){
+            Pair<String,Double> tmp = getfirst(similarityresult);
+            result.add(tmp);
+            similarityresult.remove(tmp);
+        }
+
+        return result;
+    }
+
     private INDArray Doc2vec(boolean isNew,Map<String,Pair<Double,INDArray>> tokens){
         INDArray doc2vec = Nd4j.create(word2Vec.getWordVector(word2Vec.vocab().wordAtIndex(0)).length);
         for (Map.Entry<String,Pair<Double,INDArray>> set : tokens.entrySet()){
@@ -94,7 +193,7 @@ public class LabeledSentenceProcess implements Serializable {
         return doc2vec;
     }
 
-    public List<Pair<String,Double>> calculateSimilarity(String sentence){
+    private List<Pair<String,Double>> calculateSimilarity(String sentence){
 
 
         List<Pair<String,Double>> pairList = new ArrayList<>();

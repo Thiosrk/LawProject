@@ -70,13 +70,13 @@ public class Spider implements CommandLineRunner {
 //////
 //        Law law =  spider.getLawcontent(lawlist).get(0);
 
-        System.out.println("-------------StratfindAndUpdate!-------------");
-        List<LawModel> lawList = lawDBImpl.findLawAndUpdate();
+//        System.out.println("-------------StratfindAndUpdate!-------------");
+//        List<LawModel> lawList = lawDBImpl.findLawAndUpdate();
 //        System.out.println("-------------delete collection-------------");
 //        lawDBImpl.delete();
-        System.out.println("-----------------insert Laws------------------");
+//        System.out.println("-----------------insert Laws------------------");
 //        lawRepository.insert(lawList);
-        lawDBImpl.save(lawList);
+//        lawDBImpl.save(lawList);
 //        System.out.println("-------------test findOne------------");
 //        List<String> lawnames = new ArrayList<String>();
 //        lawnames.add("中华人民共和国慈善法");
@@ -189,7 +189,7 @@ public class Spider implements CommandLineRunner {
 
 //        lawlist.add(lawname);
 
-        SpringApplication.run(Spider.class, args);
+//        SpringApplication.run(Spider.class, args);
 
 //        daoInterface.insert(spider.getLawcontent(lawlist).get(0));
 
@@ -209,7 +209,9 @@ public class Spider implements CommandLineRunner {
 //        for (int i=0;i<list.size();++i){
 //            dbService.insertLaw(list.get(i));
 //        }
+//        Spider spider = new Spider();
 
+//        WebDriver webDriver = spider.getDriver("https://www.baidu.com");
 
 
 

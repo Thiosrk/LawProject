@@ -56,21 +56,23 @@ public class DataProcess {
 //    private static final String filePath = "C:\\Users\\69401\\Desktop\\毕业设计资料\\分词\\";
 
 //    public static final String XmlPath = "C:\\Users\\69401\\Desktop\\毕业设计资料\\分词\\文书测试数据\\民事一审\\";
-    public static final String XmlPath = ResourcePath+"/民事一审/";
+    public static final String XmlPath = ResourcePath+"/XML/";
 
 //    public static final String WORD2VEC_MODEL_PATH = filePath+"vector_model_v1.txt";
     public static final String WORD2VEC_MODEL_PATH = ResourcePath+"/vector_model_v0.txt";
 
 //    public static final String DataPath = "C:\\Users\\69401\\Desktop\\毕业设计资料\\分词\\文书测试数据\\data.txt";
-    public static final String DataPath = ResourcePath+"/data_v1.txt";
+    public static final String DataPath = ResourcePath+"/data_new.txt";
 
     //    public static final String TestDataPath = "C:\\Users\\69401\\Desktop\\毕业设计资料\\分词\\文书测试数据\\test_data.txt";
-    public static final String TestDataPath = ResourcePath+"/test_data.txt";
+    public static final String TestDataPath = ResourcePath+"/test_data_new.txt";
 
 //    public static final String ModelPath = "C:\\Users\\69401\\Desktop\\毕业设计资料\\分词\\文书测试数据\\Model.zip";
     public static final String ModelPath = ResourcePath+"/Model_v0.zip";
 
-    public static final String TestResultPath = ResourcePath+"/result_final.txt";
+    public static final String TestResultPath = ResourcePath+"/result_new_1.txt";
+
+    public static final String ProcessModelPath = ResourcePath+"/process_new.txt";
 
     public static final String Datapath = "F:\\Word2vec语料库\\wiki.zh.jian.text";
 
@@ -153,17 +155,20 @@ public class DataProcess {
 //        一拖（洛阳）神通工程机械有限公司与一孙亚丽、一李强一案.xml	中华人民共和国婚姻法 第二十四条  ,中华人民共和国合同法 第一百零七条  ,中华人民共和国担保法 第十八条 第三十一条  ,中华人民共和国民事诉讼法 第一百四十四条 第六十四条第一款  ,	原告 一拖 洛阳 神通 工程 机械 有限公司 诉 称 二 被告 系 夫妻 关系 2011年 6月 9日 被告 李强 中国一拖集团 财务 有限 责任 公司 签订 产品 融资 租赁 合同 合同 约定 中国一拖集团 财务 有限 责任 公司 被告 李强 提供 选定 原告 一拖 洛阳 神通 工程 机械 有限公司 生产 矿用车 台 被告 李强 采用 融资 租赁 方式 承租 租赁 本金 448000 元 被告 李强 月 支付 租金 保证 融资 租赁 合同 履行 中国 拖 财务 集团 有限 责任 公司 原告 一拖 洛阳 神通 工程 机械 有限公司 签订 保证 合同 原告 一拖 洛阳 神通 工程 机械 有限公司 被告 李强 提供 连带 责任 保证 被告 李强 孙亚丽 原告 一拖 洛阳 神通 工程 机械 有限公司 签订 自然人 担保书 自愿 原告 一拖 洛阳 神通 工程 机械 有限公司 提供 反 担保 2012年 12月 9日 合同 期满 被告 李强 次 逾期 租金 累计 137580．45 元 原告 一拖 洛阳 神通 工程 机械 有限公司 保证 合同 中国 拖 财务 集团 有限 责任 公司 履行 担保 责任 原告 催 二 被告 未 付 拖欠 租金 相关 法律 请求 1 判 令 二 被告 支付 欠 租金 137580．45 元 逾期 利息 21153．09 元 暂 计算 2013年 11月 20日 2 本案 诉讼费 律师费 差旅费 债权 费用 被告 承担 被告 李强 孙亚丽 逾期 未 答辩 审理 查明 被告 李强 孙亚丽 系 夫妻 关系 2011年 6月 9日 被告 李强 中国一拖集团 财务 有限 责任 公司 签订 产品 融资 租赁 合同 合同 约定 中国一拖集团 财务 有限 责任 公司 被告 李强 提供 选定 原告 一拖 洛阳 神通 工程 机械 有限公司 生产 矿用车 台 被告 李强 采用 融资 租赁 方式 承租 租赁 本金 448000 元 被告 李强 月 支付 租金 保证 融资 租赁 合同 履行 中国 拖 财务 集团 有限 责任 公司 原告 一拖 洛阳 神通 工程 机械 有限公司 签订 保证 合同 原告 一拖 洛阳 神通 工程 机械 有限公司 被告 李强 提供 连带 责任 保证 被告 李强 孙亚丽 原告 一拖 洛阳 神通 工程 机械 有限公司 签订 自然人 担保书 自愿 原告 一拖 洛阳 神通 工程 机械 有限公司 提供 反 担保 2012年 12月 9日 合同 期满 被告 李强 次 逾期 租金 累计 137580．45 元 原告 一拖 洛阳 神通 工程 机械 有限公司 保证 合同 中国 拖 财务 集团 有限 责任 公司 履行 担保 责任 二 被告 李强 孙亚丽 追 果 诉讼 院
 
 //        处理数据
+//        NLPIR nlpir = new NLPIR();
+//        nlpir.init();
 //        Set stopWordSet = getStopWords();
 //        List<String> filenames = getAllfilename(XmlPath);
 //        System.out.println("files size is : "+filenames.size());
 //        List<String> datalist = new ArrayList<>();
 //        for (String str :filenames){
 //            System.out.println(str);
-//            String data = dealDatas(str,stopWordSet);
+//            String data = dealDatas(nlpir,str,stopWordSet);
 //            if (data!=null){
 //                datalist.add(data);
 //            }
 //        }
+//        nlpir.unInit();
 //
 //
 //        writeStringlistTotxt(datalist,DataPath);
@@ -250,32 +255,18 @@ public class DataProcess {
 //        System.out.println(wordVectors.getLookupTable().getVocabCache().numWords());
 
         //文章向量测试
-//        Word2Vec wordVectors = WordVectorSerializer.readWord2VecModel(new File(WORD2VEC_MODEL_PATH));
-//        LabeledSentenceProcess labeledSentenceVec = new LabeledSentenceProcess(DataPath,wordVectors);
-//        Doc2vectest(labeledSentenceVec);
-
-//        List<Double> a = new ArrayList<>();
-//        a.add(1.0);
-//        a.add(2.0);
-//        a.add(3.0);
-//        a.add(4.0);
-//        a.add(5.0);
-//        a.add(6.0);
-//
-//        List<Double> result = new ArrayList<>(5);
-//
-//        for (int i=0;i<result.size();++i){
-//            Double tmp = getfirst(a);
-//            System.out.println(tmp);
-//            result.add(tmp);
-//            a.remove(tmp);
-//        }
-//        System.out.println("result : ");
-//
-//        for (Double b :result){
-//            System.out.println(b);
-//        }
-
+        log.info("开始加载词汇表");
+        Word2Vec wordVectors = WordVectorSerializer.readWord2VecModel(new File(WORD2VEC_MODEL_PATH));
+        log.info("词汇表加载完成");
+        log.info("开始加载模型");
+        LabeledSentenceProcess labeledSentenceVec = new LabeledSentenceProcess(DataPath,wordVectors);
+        log.info("模型加载完成");
+        log.info("开始保存模型");
+        writeModel(labeledSentenceVec,ProcessModelPath);
+        log.info("开始加载模型");
+        LabeledSentenceProcess labeledSentenceProcess = readModel(ProcessModelPath);
+        log.info("模型加载完成");
+        Doc2vectest(labeledSentenceProcess);
 
     }
 //    private static Double getfirst(List<Double> result){
@@ -334,74 +325,66 @@ public class DataProcess {
 //        word2vec(fianlsentence);
 //    }
 
-//    private static void Doc2vectest(LabeledSentenceProcess labeledSentenceVec){
-//
-//        List<String> results = new ArrayList<>();
-//        List<String> testdatas = readFromtxt(TestDataPath);
-//        for (String str : testdatas) {
-//            String[] strs = str.split("\t");
-//            String label = strs[0];
-//            String data = strs[1];
-//            List<Pair<String,Double>> result = labeledSentenceVec.calculateSimilarity(data);
-//            System.out.println("\n\nPredictions for "+str);
-//            double k = 0;
-//            int flag = 0;
-//            for (int i=0;i<result.size();++i){
-//                double a = result.get(i).getValue();
-//                if (a>k){
-//                    k = a;
-//                    flag = i;
-//                }
-//            }
-//            double k1 = 0;
-//            int flag1 = 0;
-//            for( int i=0; i<result.size(); i++ ){
-//                double a = result.get(i).getValue();
-//                if (a < k){
-//                    if (a > k1){
-//                        k1 = a;
-//                        flag1 = i;
-//                    }
-//                }
-//
-//            }
-//            double k2 = 0;
-//            int flag2 = 0;
-//            for( int i=0; i<result.size(); i++ ){
-//                double a = result.get(i).getValue();
-//                if (a < k1){
-//                    if (a > k2){
-//                        k2 = a;
-//                        flag2 = i;
-//                    }
-//                }
-//            }
-//
-//            StringBuilder output = new StringBuilder();
-//            output.append("预期输出法条：").append(label)
-//                    .append("\r\n")
-//                    .append("预测结果1：").append(result.get(flag).getKey())
-//                    .append("\t")
-//                    .append("文本相似度：")
-//                    .append(k)
-//                    .append("\r\n")
-//                    .append("预测结果2：").append(result.get(flag1).getKey())
-//                    .append("\t")
-//                    .append("文本相似度：")
-//                    .append(k1)
-//                    .append("\r\n")
-//                    .append("预测结果3：").append(result.get(flag2).getKey())
-//                    .append("\t")
-//                    .append("文本相似度：")
-//                    .append(k2).append("\r\n").append("\r\n");
-//
-//            results.add(output.toString());
-//
-//        }
-//
-//        writeStringlistTotxt(results,TestResultPath);
-//    }
+    private static void Doc2vectest(LabeledSentenceProcess labeledSentenceProcess){
 
+        log.info("开始使用模型预测");
+        List<String> results = new ArrayList<>();
+        log.info("读取预测集");
+        List<String> testdatas = readFromtxt(TestDataPath);
+        log.info("开始预测");
+        double a = 0.0;
+        for (String str : testdatas) {
+            String[] strs = str.split("\t");
+            String label = strs[0];
+            String data = strs[1];
+            StringBuilder result = new StringBuilder();
+            List<Pair<String,Double>> knnresult = labeledSentenceProcess.mulKnnresult(data,10,10);
+            List<String> testlabel = new ArrayList<>();
+            result.append("样例结果 : ")
+                    .append(label).append("\r\n")
+                    .append("预测结果+权重 : ");
+            for (Pair<String,Double> tmp : knnresult){
+                testlabel.add(tmp.getKey());
+                result.append(tmp.getKey())
+                        .append("("+tmp.getValue()+")").append(",");
+            }
+            List<String> truelabel = getLawlabel(label);
+            double count = 0.0;
+            for (String l : truelabel){
+                System.out.println(l);
+                if (testlabel.contains(l)){
+                    ++count;
+                }
+            }
+            System.out.println(truelabel.size());
+            double coverage = (count/(double)truelabel.size());
+            a +=coverage;
+            result.append("\r\n")
+                    .append("法条覆盖率 : ")
+                    .append(coverage);
+
+            result.append("\r\n");
+            results.add(result.toString());
+        }
+        System.out.println("平均覆盖率 : "+a/testdatas.size());
+        log.info("预测完成，写入文件");
+        writeStringlistTotxt(results,TestResultPath);
+        log.info("完成写入");
+    }
+
+    private static List<String> getLawlabel(String str) {
+        List<String> result = new ArrayList<>();
+        String[] laws = str.split(",");
+        for (String a : laws) {
+            String[] lawcontents = a.split(" ");
+            String label = lawcontents[0];
+            for (int i = 1; i < lawcontents.length; ++i) {
+                String key = label + " " + lawcontents[i];
+                result.add(key);
+            }
+        }
+        return result;
+    }
 
     private static Collection<String> dealWikiWord(){
         String Datapath = "F:\\Word2vec语料库\\wiki.zh.jian.text";
@@ -610,6 +593,35 @@ public class DataProcess {
 //        System.out.println("The similar is : "+k);
     }
 
+    private static void writeModel(LabeledSentenceProcess labeledSentenceProcess,String path){
+        try {
+            ObjectOutputStream oos=new ObjectOutputStream(new FileOutputStream(path));
+            oos.writeObject(labeledSentenceProcess);
+            oos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static LabeledSentenceProcess readModel(String path){
+
+        LabeledSentenceProcess labeledSentenceProcess = null;
+
+        try {
+            ObjectInputStream ooi=new ObjectInputStream(new FileInputStream(path));
+            try {
+                Object obj=ooi.readObject();
+                labeledSentenceProcess =(LabeledSentenceProcess)obj;
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+            ooi.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return labeledSentenceProcess;
+    }
+
     //制作词向量数据
     private static Collection<String> makeSentences(List<String> data){
         Collection<String> sentences = new ArrayList<>();
@@ -684,7 +696,7 @@ public class DataProcess {
     }
 
     //处理数据源
-    private static String dealDatas(String filename,Set stopWordSet){
+    private static String dealDatas(NLPIR nlpir,String filename,Set stopWordSet) throws UnsupportedEncodingException {
         XmlParserUtil xmlParserUtil = new XmlParserUtil(XmlPath+filename);
 
         Map<String,String> content = xmlParserUtil.getJBQK();
@@ -692,14 +704,14 @@ public class DataProcess {
         String ajjbqk ="";
         System.out.println("----------------案件基本情况---------------");
         for (String str : names){
-            System.out.println("key is : "+str);
+//            System.out.println("key is : "+str);
             ajjbqk = content.get(str);
-            System.out.println("value is : "+ajjbqk);
-            System.out.println("value length is : "+content.get(str).length());
+//            System.out.println("value is : "+ajjbqk);
+//            System.out.println("value length is : "+content.get(str).length());
         }
         ajjbqk = replaceBlank(ajjbqk);
-//        ajjbqk = getNLPIRresult(ajjbqk,stopWordSet);
-        System.out.println("ajjbqk is : "+ajjbqk);
+        ajjbqk = getNLPIRresult(nlpir,ajjbqk,stopWordSet);
+//        System.out.println("ajjbqk is : "+ajjbqk);
         System.out.println("----------------案件基本情况---------------");
 
         Map<String,String> result = xmlParserUtil.getFLFT();
@@ -710,11 +722,11 @@ public class DataProcess {
             label.append(str);
             label.append(" ");
             label.append(result.get(str));
-            System.out.println("key is : "+str);
-            System.out.println("value is : "+result.get(str));
+//            System.out.println("key is : "+str);
+//            System.out.println("value is : "+result.get(str));
             label.append(",");
         }
-        System.out.println("label is : "+label);
+//        System.out.println("label is : "+label);
         System.out.println("----------------Law---------------");
         String labelstr = label.toString();
 

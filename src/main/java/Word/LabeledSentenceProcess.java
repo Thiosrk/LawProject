@@ -62,6 +62,7 @@ public class LabeledSentenceProcess implements Serializable {
         System.out.println("TotalCount is : "+totalcount);
 
         for (int i=0;i<totalcount;++i){
+            System.out.println("files now is:"+i);
             Map<String,Pair<Double,INDArray>> tokens = tokenizeSentence(stringList.get(i));
             filesBylabel.put(labelList.get(i),new Pair<>(stringList.get(i),Doc2vec(false,tokens)));
         }
@@ -69,7 +70,7 @@ public class LabeledSentenceProcess implements Serializable {
     }
 
     //Knn类似算法
-    public List<String> mulKnnresult(String sentence,int k,int num){
+    public List<Pair<String,Double>> mulKnnresult(String sentence,int k,int num){
 
         List<Pair<String,Double>> similarityresult = calculateSimilarity(sentence);
         List<Pair<String,Double>> topKresult = gettopK(similarityresult,k);
@@ -81,7 +82,7 @@ public class LabeledSentenceProcess implements Serializable {
             for (String a :laws){
                 String[] lawcontents = a.split(" ");
                 String label = lawcontents[0];
-                for (int i=1;i<label.length();++i){
+                for (int i=1;i<lawcontents.length;++i){
                     String key= label+" "+lawcontents[i];
                     if (labels.containsKey(key)){
                         labels.put(key,labels.get(key)+weight);
@@ -91,17 +92,14 @@ public class LabeledSentenceProcess implements Serializable {
 
         }
 
-        List<String> result = gettopN(labels,num);
-
-
-        return result;
+        return gettopN(labels,num);
     }
 
-    private List<String> gettopN(HashMap<String,Double> labels,int n) {
+    private List<Pair<String,Double>> gettopN(HashMap<String,Double> labels,int n) {
 
-        List<String> result = new ArrayList<>(n);
+        List<Pair<String,Double>> result = new ArrayList<>(n);
 
-        for (int i=0;i<n;++i){
+        for (int i=0;i<labels.size();++i){
             double flag = 0;
             String label = "";
             for (Map.Entry<String,Double> entry : labels.entrySet()){
@@ -110,13 +108,16 @@ public class LabeledSentenceProcess implements Serializable {
                     label = entry.getKey();
                 }
             }
-            result.add(label);
-            labels.remove(label);
+            if (flag >=1 ){
+                Pair<String,Double> pair = new Pair<>(label,flag);
+                result.add(pair);
+                labels.remove(label);
+            }
+
         }
 
         return result;
     }
-
 
     private HashMap<String,Double> getLawlabels(List<Pair<String, Double>> topKresult) {
 
@@ -128,7 +129,7 @@ public class LabeledSentenceProcess implements Serializable {
             for (String a :laws){
                 String[] lawcontents = a.split(" ");
                 String label = lawcontents[0];
-                for (int i=1;i<label.length();++i){
+                for (int i=1;i<lawcontents.length;++i){
                     String key= label+" "+lawcontents[i];
                     if (!result.containsKey(key)){
                         result.put(key,0.0);
@@ -150,8 +151,8 @@ public class LabeledSentenceProcess implements Serializable {
                 flag = i;
             }
         }
-        Pair<String,Double> pair = result.get(flag);
-        return pair;
+
+        return result.get(flag);
     }
 
     private List<Pair<String,Double>> gettopK(List<Pair<String, Double>> similarityresult,int k) {

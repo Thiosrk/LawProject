@@ -69,7 +69,7 @@ public class LabeledSentenceProcess implements Serializable {
 
     }
 
-    //Knn类似算法
+    //mulKnn算法
     public List<Pair<String,Double>> mulKnnresult(String sentence,int k,int num){
 
         List<Pair<String,Double>> similarityresult = calculateSimilarity(sentence);
@@ -91,7 +91,6 @@ public class LabeledSentenceProcess implements Serializable {
             }
 
         }
-
         return gettopN(labels,num);
     }
 
@@ -195,11 +194,8 @@ public class LabeledSentenceProcess implements Serializable {
     }
 
     private List<Pair<String,Double>> calculateSimilarity(String sentence){
-
-
         List<Pair<String,Double>> pairList = new ArrayList<>();
         Map<String,Pair<Double,INDArray>> tokens = tokenizeSentence(sentence);
-
         INDArray doc2vec = Doc2vec(true,tokens);
         for (Map.Entry<String,Pair<String,INDArray>> doc : filesBylabel.entrySet()){
 
@@ -209,9 +205,7 @@ public class LabeledSentenceProcess implements Serializable {
             Double result = calculateCos(doc2vec,contentvec);
             pairList.add(new Pair<>(label,result));
         }
-
         return  pairList;
-
     }
 
     private double calculateCos(INDArray doc2vec,INDArray contentvec){

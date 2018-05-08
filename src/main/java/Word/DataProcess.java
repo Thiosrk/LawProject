@@ -255,18 +255,18 @@ public class DataProcess {
 //        System.out.println(wordVectors.getLookupTable().getVocabCache().numWords());
 
         //文章向量测试
-        log.info("开始加载词汇表");
-        Word2Vec wordVectors = WordVectorSerializer.readWord2VecModel(new File(WORD2VEC_MODEL_PATH));
-        log.info("词汇表加载完成");
-        log.info("开始加载模型");
-        LabeledSentenceProcess labeledSentenceVec = new LabeledSentenceProcess(DataPath,wordVectors);
-        log.info("模型加载完成");
-        log.info("开始保存模型");
-        writeModel(labeledSentenceVec,ProcessModelPath);
+//        log.info("开始加载词汇表");
+//        Word2Vec wordVectors = WordVectorSerializer.readWord2VecModel(new File(WORD2VEC_MODEL_PATH));
+//        log.info("词汇表加载完成");
+//        log.info("开始加载模型");
+//        LabeledSentenceProcess labeledSentenceVec = new LabeledSentenceProcess(DataPath,wordVectors);
+//        log.info("模型加载完成");
+//        log.info("开始保存模型");
+//        writeModel(labeledSentenceVec,ProcessModelPath);
         log.info("开始加载模型");
         LabeledSentenceProcess labeledSentenceProcess = readModel(ProcessModelPath);
         log.info("模型加载完成");
-        Doc2vectest(labeledSentenceProcess);
+//        Doc2vectest(labeledSentenceProcess);
 
     }
 //    private static Double getfirst(List<Double> result){
@@ -324,6 +324,15 @@ public class DataProcess {
 ////        Collection<String> fianlsentence = fileLineDataHandler.getresult();
 //        word2vec(fianlsentence);
 //    }
+
+    public List<String> getRecommend(String content){
+        List<String> results = new ArrayList<>();
+        List<Pair<String,Double>> knnresult = labeledSentenceProcess.mulKnnresult(content,10,10);
+        for (Pair<String,Double> tmp : knnresult){
+            results.add(tmp.getKey());
+        }
+        return results;
+    }
 
     private static void Doc2vectest(LabeledSentenceProcess labeledSentenceProcess){
 
@@ -592,6 +601,8 @@ public class DataProcess {
 //        System.out.println("nearest law is : "+labels.get(flag));
 //        System.out.println("The similar is : "+k);
     }
+
+
 
     private static void writeModel(LabeledSentenceProcess labeledSentenceProcess,String path){
         try {
@@ -968,7 +979,6 @@ public class DataProcess {
             }
         }
         return result.toString();
-//        System.out.println("Final result: "+reault);
     }
 
     //NLPIRcall
